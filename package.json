@@ -1,0 +1,32 @@
+{
+  "name": "algorithm-js",
+  "version": "1.0.0",
+  "description": "Javascript 数据结构与算法",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "LinkedList": "tsc --build ./LinkedList/tsconfig.json && mocha -r ts-node/register ./LinkedList/dist/test/**/*.test.js",
+    "start": "ts-node-dev ./LinkedList/index.ts"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WenJiang99/algorithm-js.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WenJiang99/algorithm-js/issues"
+  },
+  "homepage": "https://github.com/WenJiang99/algorithm-js#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2",
+    "ts-node": "^8.9.1",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.8.3"
+  }
+}
