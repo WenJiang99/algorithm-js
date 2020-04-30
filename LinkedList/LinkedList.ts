@@ -57,9 +57,8 @@ export default class LinkedList<T> {
   insertBefore(target: T, item: T): boolean {
     const nodeBeforeTarget = this.findPrevNode(target);
     if (!nodeBeforeTarget) return false;
-    const oldNext = nodeBeforeTarget.next;
     const newNode = new ListNode(item);
-    newNode.next = oldNext;
+    newNode.next = nodeBeforeTarget.next;
     nodeBeforeTarget.next = newNode;
     this.length++;
     return true;
@@ -74,8 +73,7 @@ export default class LinkedList<T> {
     const targetNode = this.find(target);
     if (!targetNode) return false;
     const e = new ListNode(item);
-    const oldNext = targetNode.next;
-    e.next = oldNext;
+    e.next = targetNode.next;
     targetNode.next = e;
     this.length++;
     if (targetNode === this.end) this.end = e;
@@ -89,7 +87,7 @@ export default class LinkedList<T> {
   remove(item: T): boolean {
     if (this.empty()) return false;
     const nodeBeforeItem = this.findPrevNode(item);
-    // 要删除的节点不存在
+    // 要删除的节点不存在或是head节点
     if (!nodeBeforeItem) return false;
     // 删除的节点是链表最后一个节点
     if (!nodeBeforeItem.next.next) {
@@ -107,7 +105,7 @@ export default class LinkedList<T> {
    * @param item 
    */
   find(item: T): ListNode<T> {
-    let current = this.head;
+    let current = this.head.next;
     while (!!current) {
       if (current.data === item) return current;
       current = current.next;
@@ -120,6 +118,7 @@ export default class LinkedList<T> {
    * @param item 
    */
   findPrevNode(item: T): ListNode<T> {
+    // 这个地方从 head 开始循环，否则链表第一个节点就没有前驱节点
     let current = this.head;
     while (!!current.next) {
       if (current.next.data === item) return current;

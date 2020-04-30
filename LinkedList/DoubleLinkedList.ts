@@ -119,7 +119,7 @@ export default class DoubleLinkedList<T>  {
    * @param item 
    */
   find(item: T): DoubleLinkedNode<T> {
-    let current = this.head;
+    let current = this.head.next;
     while (!!current) {
       if (current.data === item) return current;
       current = current.next;
