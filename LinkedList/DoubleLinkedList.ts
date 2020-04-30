@@ -1,21 +1,19 @@
-const HEAD = Symbol('LinkedList#head');
-// const HEAD = 'LinkedList#head'
-class ListNode<T> {
-  next: ListNode<T>
-  data: T
+class DoubleLinkedNode<T>{
+  data: T;
+  next: DoubleLinkedNode<T>;
+  previous: DoubleLinkedNode<T>;
   key: string;
-  constructor(data: T, key = '') {
+  constructor(data: T) {
     this.data = data;
-    this.key = key;
   }
 }
-
-export default class LinkedList<T> {
-  private head: ListNode<any>;
-  private end: ListNode<T>
+const HEAD = Symbol('DoubleLinkedList#HEAD');
+export default class DoubleLinkedList<T>  {
+  private head: DoubleLinkedNode<any>;
+  private end: DoubleLinkedNode<T>;
   public length: number;
   constructor() {
-    this.head = new ListNode(HEAD);
+    this.head = new DoubleLinkedNode(HEAD);
     this.end = null;
     this.length = 0;
   }
@@ -25,12 +23,14 @@ export default class LinkedList<T> {
    * @param item 要添加的新节点
    */
   append(item: T) {
-    const e = new ListNode(item);
-    if (!this.end) {
+    const e = new DoubleLinkedNode(item);
+    if (this.empty()) {
       this.head.next = e;
+      e.previous = this.head;
     } else {
       const end = this.end;
       end.next = e;
+      e.previous = end;
     }
     e.next = null;
     this.end = e;
@@ -43,8 +43,10 @@ export default class LinkedList<T> {
    */
   unshift(item: T) {
     const oldNext = this.head.next;
-    const e = new ListNode(item);
+    const e = new DoubleLinkedNode(item);
     e.next = oldNext;
+    e.previous = this.head;
+    oldNext.previous = e;
     this.head.next = e;
     this.length++;
   }
@@ -55,12 +57,14 @@ export default class LinkedList<T> {
    * @param item 要插入的新节点
    */
   insertBefore(target: T, item: T): boolean {
-    const nodeBeforeTarget = this.findPrevNode(target);
-    if (!nodeBeforeTarget) return false;
-    const oldNext = nodeBeforeTarget.next;
-    const newNode = new ListNode(item);
-    newNode.next = oldNext;
-    nodeBeforeTarget.next = newNode;
+    const targetNode = this.find(target);
+    if (!targetNode) return false;
+    const oldPrev = targetNode.previous;
+    const e = new DoubleLinkedNode(item);
+    e.next = targetNode;
+    e.previous = oldPrev;
+    oldPrev.next = e;
+    targetNode.previous = e;
     this.length++;
     return true;
   }
@@ -73,12 +77,20 @@ export default class LinkedList<T> {
   insertAfter(target: T, item: T): boolean {
     const targetNode = this.find(target);
     if (!targetNode) return false;
-    const e = new ListNode(item);
-    const oldNext = targetNode.next;
-    e.next = oldNext;
-    targetNode.next = e;
+    const e = new DoubleLinkedNode(item);
+    if (!targetNode.next) {
+      targetNode.next = e;
+      e.previous = targetNode;
+      e.next = null;
+      this.end = e;
+    } else {
+      const oldNext = targetNode.next;
+      oldNext.previous = e;
+      targetNode.next = e;
+      e.previous = targetNode;
+      e.next = oldNext;
+    }
     this.length++;
-    if (targetNode === this.end) this.end = e;
     return true;
   }
 
@@ -87,16 +99,16 @@ export default class LinkedList<T> {
    * @param item 
    */
   remove(item: T): boolean {
-    if (this.empty()) return false;
-    const nodeBeforeItem = this.findPrevNode(item);
-    // 要删除的节点不存在
-    if (!nodeBeforeItem) return false;
-    // 删除的节点是链表最后一个节点
-    if (!nodeBeforeItem.next.next) {
-      nodeBeforeItem.next = null;
-      this.end = nodeBeforeItem;
+    const targetNode = this.find(item);
+    if (!targetNode) return false;
+    const prevNode = targetNode.previous;
+    if (!targetNode.next) {
+      prevNode.next = null;
+      targetNode.previous = null;
+      this.end = prevNode;
     } else {
-      nodeBeforeItem.next = nodeBeforeItem.next.next;
+      prevNode.next = targetNode.next;
+      targetNode.next.previous = prevNode;
     }
     this.length--;
     return true;
@@ -106,26 +118,13 @@ export default class LinkedList<T> {
    * 查找指定节点
    * @param item 
    */
-  find(item: T): ListNode<T> {
+  find(item: T): DoubleLinkedNode<T> {
     let current = this.head;
     while (!!current) {
       if (current.data === item) return current;
       current = current.next;
     }
-    return null as ListNode<T>;
-  }
-
-  /**
-   * 查找指定节点的前驱结点
-   * @param item 
-   */
-  findPrevNode(item: T): ListNode<T> {
-    let current = this.head;
-    while (!!current.next) {
-      if (current.next.data === item) return current;
-      current = current.next;
-    }
-    return null as ListNode<T>;
+    return null as DoubleLinkedNode<T>;
   }
 
   /**
@@ -143,14 +142,10 @@ export default class LinkedList<T> {
     return this.head.next;
   }
 
-  getHead(){
-    return this.head;
-  }
-  
   display() {
     let current = this.head.next;
     while (!!current) {
-      console.log(current.data);
+      console.log(current.data)
       current = current.next;
     }
   }
