@@ -1,18 +1,18 @@
 import 'mocha'
 import { assert } from 'chai'
-import LinkedList from '../LinkedList'
+import DoubleLinkedList from '../DoubleLinkedList'
 
 interface INode {
   text: string,
   value: string
 }
-describe('LinkedList', () => {
+describe('DoubleLinkedList', () => {
   const simpleDatas = ['item1', 'item2', 'item3']
   const objectDatas: INode[] = simpleDatas.map(item => ({ text: item, value: item }))
 
   describe('@empty', () => {
-    const list = new LinkedList<string>()
-    const objectList = new LinkedList<INode>()
+    const list = new DoubleLinkedList<string>()
+    const objectList = new DoubleLinkedList<INode>()
     it('list is empty', () => {
       assert.equal(list.empty(), true)
       assert.equal(list.length, 0)
@@ -31,8 +31,8 @@ describe('LinkedList', () => {
     })
   })
   describe('@append', () => {
-    const list = new LinkedList<string>()
-    const objList = new LinkedList<INode>()
+    const list = new DoubleLinkedList<string>()
+    const objList = new DoubleLinkedList<INode>()
     assert(!list.getLast())
     assert(!objList.getLast())
 
@@ -53,8 +53,8 @@ describe('LinkedList', () => {
 
   })
   describe('@find', () => {
-    const list = new LinkedList<string>()
-    const objList = new LinkedList<INode>()
+    const list = new DoubleLinkedList<string>()
+    const objList = new DoubleLinkedList<INode>()
     assert(!list.find('itemNotExists'))
     assert(!objList.find({ text: 'notExists', value: 'notExists' }))
 
@@ -63,6 +63,7 @@ describe('LinkedList', () => {
         list.append(simpleDatas[i]);
         assert.equal(list.length, i + 1);
         assert.equal(list.empty(), false)
+        assert.equal(list.find(simpleDatas[i]), list.getLast());
         assert.equal(list.find(simpleDatas[i]), list.getLast());
       })
       it(`objectList: append ${i + 1} item`, () => {
@@ -73,31 +74,11 @@ describe('LinkedList', () => {
       })
     }
   })
-  describe('@findPrevNode', () => {
-    const list = new LinkedList<string>()
-    const objList = new LinkedList<INode>()
-    assert(!list.find('itemNotExists'))
-    assert(!objList.find({ text: 'notExists', value: 'notExists' }))
 
-    for (let i = 0; i < simpleDatas.length; i++) {
-      it(`simpleList: append ${i + 1} item`, () => {
-        list.append(simpleDatas[i]);
-        assert.equal(list.length, i + 1);
-        assert.equal(list.empty(), false)
-        assert.equal(list.findPrevNode(simpleDatas[i]).next.data, simpleDatas[i]);
-      })
-      it(`objectList: append ${i + 1} item`, () => {
-        objList.append(objectDatas[i]);
-        assert.equal(objList.length, i + 1);
-        assert.equal(objList.empty(), false)
-        assert.equal(objList.findPrevNode(objectDatas[i]).next.data, objectDatas[i]);
-      })
-    }
-  })
   describe('@unshift', () => {
-    const list = new LinkedList<string>()
+    const list = new DoubleLinkedList<string>()
     assert(!list.getFirst())
-    const objList = new LinkedList<INode>()
+    const objList = new DoubleLinkedList<INode>()
     assert(!objList.getFirst())
     for (let i = 0; i < simpleDatas.length; i++) {
       it(`simpleList: unshift ${i + 1} item`, () => {
@@ -105,23 +86,29 @@ describe('LinkedList', () => {
         assert.equal(list.length, i + 1);
         assert.equal(list.empty(), false)
         assert.equal(list.getFirst().data, simpleDatas[i]);
+        assert.equal(list.getHead().next.data, simpleDatas[i]);
+        assert.equal(list.getFirst().previous, list.getHead());
+        assert.notEqual(list.getFirst(), list.getFirst().next);
       })
       it(`objectList: unshift ${i + 1} item`, () => {
         objList.unshift(objectDatas[i]);
         assert.equal(objList.length, i + 1);
         assert.equal(objList.empty(), false)
         assert.equal(objList.getFirst().data, objectDatas[i]);
+        assert.equal(objList.getHead().next.data, objectDatas[i]);
+        assert.equal(objList.getFirst().previous, objList.getHead());
+        assert.notEqual(objList.getFirst(), objList.getFirst().next);
       })
     }
   })
 
   describe('@insertAfter', () => {
-    const list = new LinkedList<string>()
+    const list = new DoubleLinkedList<string>()
     const target1 = 'target1'
     const target2 = 'target2'
     list.append(target1);
     list.append(target2);
-    const objList = new LinkedList<INode>()
+    const objList = new DoubleLinkedList<INode>()
     const objTarget1 = { text: 'target1', value: 'target1' }
     const objTarget2 = { text: 'target2', value: 'target2' }
     objList.append(objTarget1);
@@ -130,21 +117,23 @@ describe('LinkedList', () => {
       it(`insertAfter target1 for ${i + 1}th item`, () => {
         list.insertAfter(target1, simpleDatas[i]);
         assert.equal(list.find(target1).next.data, simpleDatas[i])
+        assert.equal(list.find(simpleDatas[i]).previous.data, target1)
       })
       it(`insertAfter target1 for ${i + 1}th item`, () => {
         objList.insertAfter(objTarget1, objectDatas[i]);
         assert.equal(objList.find(objTarget1).next.data, objectDatas[i])
+        assert.equal(objList.find(objectDatas[i]).previous.data, objTarget1)
       })
     }
   })
 
   describe('@insertBefore', () => {
-    const list = new LinkedList<string>()
+    const list = new DoubleLinkedList<string>()
     const target1 = 'target1'
     const target2 = 'target2'
     list.append(target1);
     list.append(target2);
-    const objList = new LinkedList<INode>()
+    const objList = new DoubleLinkedList<INode>()
     const objTarget1 = { text: 'target1', value: 'target1' }
     const objTarget2 = { text: 'target2', value: 'target2' }
     objList.append(objTarget1);
@@ -153,17 +142,19 @@ describe('LinkedList', () => {
       it(`insertBefore target1 for ${i + 1}th item`, () => {
         list.insertBefore(target2, simpleDatas[i]);
         assert.equal(list.find(simpleDatas[i]).next.data, target2)
+        assert.equal(list.find(target2).previous.data, simpleDatas[i])
       })
       it(`insertAfter target1 for ${i + 1}th item`, () => {
         objList.insertBefore(objTarget2, objectDatas[i]);
         assert.equal(objList.find(objectDatas[i]).next.data, objTarget2)
+        assert.equal(objList.find(objTarget2).previous.data, objectDatas[i])
       })
     }
   })
 
   describe('@remove', () => {
-    const list = new LinkedList<string>()
-    const objList = new LinkedList<INode>()
+    const list = new DoubleLinkedList<string>()
+    const objList = new DoubleLinkedList<INode>()
     assert.equal(list.remove('notExist'), false)
     assert.equal(objList.remove({ text: 'notExist', value: 'notExist' }), false)
     for (let i = 0; i < simpleDatas.length; i++) {

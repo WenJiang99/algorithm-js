@@ -42,11 +42,11 @@ export default class DoubleLinkedList<T>  {
    * @param item 新添加的节点
    */
   unshift(item: T) {
-    const oldNext = this.head.next;
     const e = new DoubleLinkedNode(item);
-    e.next = oldNext;
+    e.next = this.head.next;
     e.previous = this.head;
-    oldNext.previous = e;
+    if (this.length !== 0) this.head.next.previous = e;
+    else this.end = e;
     this.head.next = e;
     this.length++;
   }
@@ -101,6 +101,7 @@ export default class DoubleLinkedList<T>  {
   remove(item: T): boolean {
     const targetNode = this.find(item);
     if (!targetNode) return false;
+    if (targetNode === this.head) throw new Error(`Cannot Remove The Head Node Of The List.`)
     const prevNode = targetNode.previous;
     if (!targetNode.next) {
       prevNode.next = null;
@@ -140,6 +141,9 @@ export default class DoubleLinkedList<T>  {
 
   getFirst() {
     return this.head.next;
+  }
+  getHead() {
+    return this.head;
   }
 
   display() {
