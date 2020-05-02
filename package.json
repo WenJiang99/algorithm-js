@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "testLinkedList": "tsc --build ./LinkedList/tsconfig.json && mocha -r ts-node/register ./LinkedList/dist/test/**/*.test.js",
-    "startLinkedList": "ts-node-dev ./LinkedList/index.ts"
+    "startLinkedList": "ts-node-dev ./LinkedList/index.ts",
+    "testDict": "tsc --build ./Dictionary/tsconfig.json && mocha -r ts-node/register ./Dictionary/dist/test/**/*.test.js"
   },
   "repository": {
     "type": "git",
