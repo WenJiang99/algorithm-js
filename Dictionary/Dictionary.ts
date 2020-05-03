@@ -1,6 +1,6 @@
 export default class Dictionary<T>{
   private data: {
-    [k:string]:T
+    [k: string]: T
   };
   constructor() {
     this.data = {}
@@ -34,9 +34,9 @@ export default class Dictionary<T>{
     }
   }
 
-  sort(type: 'key' | 'value' = 'key', compareFn: (a: string, b: string) => number = () => 1) {
+  sort(type: 'key' | 'value' = 'key', compareFn?: (a: string, b: string) => number) {
     let target: T[] = [];
-    for (const k in Object.keys(this.data).sort(compareFn)) target.push(this.data[k]);
+    for (const k of Object.keys(this.data).sort(compareFn)) target.push(this.data[k]);
     return target;
   }
 

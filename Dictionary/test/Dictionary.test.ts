@@ -15,12 +15,13 @@ describe('Dictionary', () => {
     const simpleDict = new Dictionary<string>()
     const objDict = new Dictionary<INode>()
     for (let i = 0; i < simpleData.length; i++) {
+      const key = prefix + i;
       it(`simple: add ${i + 1} item`, () => {
-        simpleDict.add(prefix + i, simpleData[i])
+        simpleDict.add(key, simpleData[i])
         assert.equal(simpleDict.length(), i + 1)
       })
       it(`object: add ${i + 1} item`, () => {
-        objDict.add(prefix + i, objData[i])
+        objDict.add(key, objData[i])
         assert.equal(objDict.length(), i + 1)
       })
     }
@@ -30,14 +31,15 @@ describe('Dictionary', () => {
     const simpleDict = new Dictionary<string>()
     const objDict = new Dictionary<INode>()
     for (let i = 0; i < simpleData.length; i++) {
+      const key = prefix + i;
       it(`simple: add ${i + 1} item`, () => {
-        simpleDict.add(prefix + i, simpleData[i])
+        simpleDict.add(key, simpleData[i])
         assert.equal(simpleDict.length(), i + 1)
         assert.equal(simpleDict.find(prefix + i), simpleData[i])
         assert.notExists(simpleDict.find(`notExist`))
       })
       it(`object: add ${i + 1} item`, () => {
-        objDict.add(prefix + i, objData[i])
+        objDict.add(key, objData[i])
         assert.equal(objDict.length(), i + 1)
         assert.deepEqual(objDict.find(prefix + i), objData[i])
         assert.notExists(objDict.find(`notExist`))
@@ -51,7 +53,7 @@ describe('Dictionary', () => {
     for (let i = 0; i < simpleData.length; i++) {
       const key = prefix + i;
       it(`simple: add ${i + 1} item`, () => {
-        simpleDict.add(prefix + i, simpleData[i])
+        simpleDict.add(key, simpleData[i])
         assert.equal(simpleDict.find(key), simpleData[i])
         simpleDict.remove(key)
         assert.notExists(simpleDict.find(key))
@@ -71,7 +73,7 @@ describe('Dictionary', () => {
     for (let i = 0; i < simpleData.length; i++) {
       const key = prefix + i;
       it(`simple: add ${i + 1} item`, () => {
-        simpleDict.add(prefix + i, simpleData[i])
+        simpleDict.add(key, simpleData[i])
         assert.equal(simpleDict.find(key), simpleData[i])
         assert.equal(simpleDict.length(), 1);
         simpleDict.clear();
@@ -89,15 +91,15 @@ describe('Dictionary', () => {
     }
   })
 
-  // TODO: 不同方式排序结果,key生成
   describe('@sort', () => {
     const simpleDict = new Dictionary<string>()
     const objDict = new Dictionary<INode>()
+    const lengthPositiveCb = (a: string, b: string) => a.length - b.length;
+    const lengthNegtiveCb = (a: string, b: string) => b.length - a.length;
     for (let i = 0; i < simpleData.length; i++) {
-      const key = prefix + i;
-      const lengthCb = (a: string, b: string) => a.length - b.length;
+      const key = prefix + (Math.random() + '').slice(-i - 1);
       it(`simple: add ${i + 1} item`, () => {
-        simpleDict.add(prefix + i, simpleData[i])
+        simpleDict.add(key, simpleData[i])
         assert.equal(simpleDict.find(key), simpleData[i])
         assert.isArray(simpleDict.sort())
       })
@@ -107,6 +109,18 @@ describe('Dictionary', () => {
         assert.isArray(objDict.sort())
       })
     }
+    it(`simple : array equal `, () => {
+      assert.equal(JSON.stringify(simpleDict.sort('key', lengthPositiveCb)), JSON.stringify(simpleData), 'array equal')
+    })
+    it(`obj : array equal `, () => {
+      assert.equal(JSON.stringify(objDict.sort('key', lengthPositiveCb)), JSON.stringify(objData), 'obj array equal')
+    })
+    it(`simple : array equal `, () => {
+      assert.equal(JSON.stringify(simpleDict.sort('key', lengthNegtiveCb)), JSON.stringify(simpleData.reverse()), 'array equal')
+    })
+    it(`obj : array equal `, () => {
+      assert.equal(JSON.stringify(objDict.sort('key', lengthNegtiveCb)), JSON.stringify(objData.reverse()), 'obj array equal')
+    })
   })
 
 })
