@@ -9,23 +9,41 @@ export default class Dictionary<T>{
 
   }
 
-
   length(): number {
     let count = 0;
     for (const k in this.data) count++;
     return count;
   }
 
-  add(key: string, value: T) {
+  has(key: string): boolean {
+    return key in this.data;
+  }
+
+  set(key: string, value: T) {
     this.data[key] = value;
   }
 
-  find(key: string): T {
+  get(key: string): T {
     return this.data[key];
   }
 
-  remove(key: string) {
-    delete this.data[key];
+  keys(): string[] {
+    return Object.keys(this.data);
+  }
+
+  values(): T[] {
+    let target: T[] = [];
+    for (const k in this.data) target.push(this.data[k]);
+    return target;
+
+  }
+
+  remove(key: string): boolean {
+    if (this.has(key)) {
+      delete this.data[key];
+      return true;
+    }
+    return false;
   }
 
   clear() {
@@ -34,6 +52,7 @@ export default class Dictionary<T>{
     }
   }
 
+  // TODO: 通过`type`的值动态指定 `compareFn`中参数的数据类型
   sort(type: 'key' | 'value' = 'key', compareFn?: (a: string, b: string) => number) {
     let target: T[] = [];
     for (const k of Object.keys(this.data).sort(compareFn)) target.push(this.data[k]);
