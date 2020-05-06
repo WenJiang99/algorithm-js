@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "ts-node-dev",
     "testLinkedList": "tsc --build ./LinkedList/tsconfig.json && mocha -r ts-node/register ./LinkedList/dist/test/**/*.test.js",
     "startLinkedList": "ts-node-dev ./LinkedList/index.ts",
-    "testDict": "tsc --build ./Dictionary/tsconfig.json && mocha -r ts-node/register ./Dictionary/dist/test/**/*.test.js"
+    "testDict": "tsc --build ./Dictionary/tsconfig.json && mocha -r ts-node/register ./Dictionary/dist/test/**/*.test.js",
+    "testHash": "tsc --build ./HashTable/tsconfig.json && mocha -r ts-node/register ./HashTable/dist/test/**/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +25,10 @@
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
+    "@types/mockjs": "^1.0.2",
     "chai": "^4.2.0",
     "mocha": "^7.1.2",
+    "mockjs": "^1.1.0",
     "ts-mocha": "^7.0.0",
     "ts-node": "^8.9.1",
     "ts-node-dev": "^1.0.0-pre.44",
