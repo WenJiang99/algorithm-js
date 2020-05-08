@@ -18,4 +18,5 @@ tree.insert(25);
 tree.insert(6);
 
 
-console.log(tree.search(5))
+tree.remove(11)
+tree.inOrderTraverse()
