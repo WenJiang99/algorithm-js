@@ -1,4 +1,4 @@
-import BinarySearchTree from "./BinarySearchTree";
+import BinarySearchTree from "./BinarySearch/BinarySearchTree";
 
 const tree = new BinarySearchTree<number>();
 tree.insert(11);

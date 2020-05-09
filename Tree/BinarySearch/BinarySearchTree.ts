@@ -3,7 +3,7 @@ import BinaryTreeNode from "./BinaryTreeNode";
 import { TreeNodeCallBack } from "./interface";
 
 export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
-  root: BinaryTreeNode<T> = null;
+  private root: BinaryTreeNode<T> = null as any;
   private readonly LEFT: number = -1;
   private readonly RIGHT: number = 1;
   private readonly NONE: number = 0;
@@ -16,7 +16,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
   private getInsertPosition(target: BinaryTreeNode<T>, element: BinaryTreeNode<T>): number {
     if (!element || !target) return this.NONE;
     if (element.data < target.data) return this.LEFT;
-    else if (element.data > target.data) return this.RIGHT;
+    return this.RIGHT;
 
   }
 
@@ -66,7 +66,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * 获取一棵树的最小的节点
    * @param root 树的根节点
    */
-  private getMinimumOfTree(root: BinaryTreeNode<T>): BinaryTreeNode<T> {
+  private getMinimumOfTree(root: BinaryTreeNode<T>): BinaryTreeNode<T> | null {
     if (!root) return null;
     let current = root;
     while (current.left) current = current.left;
@@ -77,14 +77,14 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * 获取一棵树的最大的节点
    * @param root 
    */
-  private getMaximumOfTree(root: BinaryTreeNode<T>): BinaryTreeNode<T> {
+  private getMaximumOfTree(root: BinaryTreeNode<T>): BinaryTreeNode<T> | null {
     if (!root) return null;
     let current = root;
     while (current.right) current = current.right;
     return current;
   }
 
-  private getParent(entry: BinaryTreeNode<T>, elemnt: BinaryTreeNode<T>): BinaryTreeNode<T> {
+  private getParent(entry: BinaryTreeNode<T>, elemnt: BinaryTreeNode<T>): BinaryTreeNode<T> | null {
     if (!entry || !elemnt || elemnt === entry) return null;
     let current = entry;
     while (current) {
@@ -154,13 +154,13 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
     if (!leaf) return;
     // 要删除的叶子节点是树的根节点
     if (!parent) {
-      this.root = null;
+      this.root = null as any;
       return;
     }
     if (parent.left === leaf) {
-      parent.left = null;
+      parent.left = null as any;
     } else if (parent.right === leaf) {
-      parent.right = null;
+      parent.right = null as any;
     }
   }
 
@@ -173,7 +173,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
     if (!element) return;
     // 要删除的叶子节点是树的根节点
     if (!parent) {
-      this.root = null;
+      this.root = null as any;
       return;
     }
     const child = element.left || element.right;
@@ -273,7 +273,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * 在树上查找某个键值所在的节点
    * @param data 
    */
-  search(data: T): BinaryTreeNode<T> {
+  search(data: T): BinaryTreeNode<T> | null {
     if (!this.root) return null;
     let current = this.root;
     while (current) {
@@ -323,5 +323,9 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
   inOrderTraverse(cb?: TreeNodeCallBack<T>): void {
     cb = cb || (item => console.log(item && item.data));
     this.inOrderTraverseElement(this.root, cb);
+  }
+
+  getRoot(): BinaryTreeNode<T> | null {
+    return this.root;
   }
 }
