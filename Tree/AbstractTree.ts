@@ -1,4 +1,4 @@
-import { TreeNodeCallBack } from "./interface";
+import { TreeNodeCallBack } from "./BinarySearch/interface";
 
 export default abstract class AbstractTree<T> {
   abstract insert(data: T): void;

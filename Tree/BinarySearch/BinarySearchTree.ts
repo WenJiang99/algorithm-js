@@ -1,19 +1,19 @@
-import AbstractSearchTree from "./AbstractSearchTree";
+import AbstractSearchTree from "../AbstractSearchTree";
 import BinaryTreeNode from "./BinaryTreeNode";
 import { TreeNodeCallBack } from "./interface";
 
 export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
-  private root: BinaryTreeNode<T> = null as any;
-  private readonly LEFT: number = -1;
-  private readonly RIGHT: number = 1;
-  private readonly NONE: number = 0;
+  protected root: BinaryTreeNode<T> = null as any;
+  protected readonly LEFT: number = -1;
+  protected readonly RIGHT: number = 1;
+  protected readonly NONE: number = 0;
 
   /**
    * 获取到一个新节点插入到一个目标节点的左节点还是右节点
    * @param target 目标节点
    * @param element 要插入的节点
    */
-  private getInsertPosition(target: BinaryTreeNode<T>, element: BinaryTreeNode<T>): number {
+  protected getInsertPosition(target: BinaryTreeNode<T>, element: BinaryTreeNode<T>): number {
     if (!element || !target) return this.NONE;
     if (element.data < target.data) return this.LEFT;
     return this.RIGHT;
@@ -21,45 +21,30 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
   }
 
   /**
-   * 插入一个节点element到目标节点的左节点上
-   * @param target 目标节点
-   * @param element 要插入的节点
-   */
-  private insertToLeft(target: BinaryTreeNode<T>, element: BinaryTreeNode<T>) {
-    if (!target.left) {
-      target.left = element;
-    }
-    else {
-      return this.insertToTree(target.left, element)
-    }
-  }
-
-  /**
-   * 插入一个节点element到目标节点的右节点上
-   * @param target 目标节点
-   * @param element 要插入的节点
-   */
-  private insertToRight(target: BinaryTreeNode<T>, element: BinaryTreeNode<T>) {
-    if (!target.right) {
-      target.right = element;
-    }
-    else {
-      return this.insertToTree(target.right, element)
-    }
-  }
-
-  /**
    * 插入一个节点到一棵树上
    * @param root 树的根节点
    * @param element 要插入的节点
    */
-  private insertToTree(root: BinaryTreeNode<T>, element: BinaryTreeNode<T>): void {
+  protected insertToTree(root: BinaryTreeNode<T>, element: BinaryTreeNode<T>): BinaryTreeNode<T> {
     // 树是空的
     if (!root) root = element;
     else {
-      if (this.getInsertPosition(root, element) === this.LEFT) return this.insertToLeft(root, element);
-      else return this.insertToRight(root, element);
+      if (this.getInsertPosition(root, element) === this.LEFT) {
+        if (!root.left) {
+          root.left = element;
+        } else {
+          root.left = this.insertToTree(root.left, element);
+        }
+      }
+      else {
+        if (!root.right) {
+          root.right = element;
+        } else {
+          root.right = this.insertToTree(root.right, element)
+        }
+      }
     }
+    return root;
   }
 
   /**
@@ -207,7 +192,6 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
     newElement.right = element.right;
     element.left = null;
     element.right = null;
-
   }
 
   /**

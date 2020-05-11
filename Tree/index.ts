@@ -1,6 +1,9 @@
 import BinarySearchTree from "./BinarySearch/BinarySearchTree";
+import AVL from './AVL/AVL'
 
-const tree = new BinarySearchTree<number>();
+const BaseTree = AVL;
+
+const tree = new BaseTree<number>();
 tree.insert(11);
 tree.insert(7);
 tree.insert(15);
@@ -18,5 +21,5 @@ tree.insert(25);
 tree.insert(6);
 
 
-tree.remove(11)
+// console.log(tree.getRoot())
 tree.inOrderTraverse()

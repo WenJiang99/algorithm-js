@@ -1,5 +1,5 @@
 import AbstractTree from "./AbstractTree";
-import BinaryTreeNode from "./BinaryTreeNode";
+import BinaryTreeNode from "./BinarySearch/BinaryTreeNode";
 
 export default abstract class AbstractSearchTree<T> extends AbstractTree<T>{
   abstract search(data: T): BinaryTreeNode<T> | null;
