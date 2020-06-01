@@ -27,5 +27,4 @@ module.exports = class PriorityQueue {
     while (i < this._data.length) str += this._data[i++].data + (this._data.length - i === 0 ? '' : seperator);
     return str;
   }
-
 }
