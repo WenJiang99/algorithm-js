@@ -142,10 +142,10 @@ export default class LinkedList<T> {
     return this.head.next;
   }
 
-  getHead(){
+  getHead() {
     return this.head;
   }
-  
+
   display() {
     let current = this.head.next;
     while (!!current) {
@@ -154,11 +154,29 @@ export default class LinkedList<T> {
     }
   }
 
-  *[Symbol.iterator]() {
-    let current = this.head;
-    while (!!current.next) {
-      yield current.data;
-      current = current.next;
+  [Symbol.iterator]() {
+    let current = this.head.next;
+    let seed = 1;
+    const iterator = {
+      next
+    };
+    function next() {
+      console.log(`next ==> `, seed++)
+      let old = current;
+      if (!old) {
+        return {
+          value: undefined,
+          done: true
+        }
+      }
+      current = old.next;
+      return {
+        value: old.data,
+        done: false
+      }
     }
+
+    return iterator;
   }
+
 }

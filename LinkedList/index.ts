@@ -12,12 +12,16 @@ const datas = [
     { text: '2' },
     { text: '3' }
 ]
-console.log(list.empty())
 for (let item of datas) {
     list.append(item);
     doubleList.append(item);
 
 }
+
+for (let i of list) {
+    console.log(i)
+}
+
 list.remove(datas[2])
 list.insertAfter(datas[1], { text: '4' })
 list.insertBefore(datas[1], { text: '5' })

@@ -9,7 +9,14 @@ AVL树是一种自平衡树。添加或移除节点时，AVL树会尝试自平�
 
 ### 向左单旋(RR)
 
-![](images/RR.png)
+非根节点的平衡：
+
+![](images/RR-1.png)
+
+
+根节点平衡：
+
+![](images/RR-2.png)
 
 ```ts
 /**
@@ -26,7 +33,7 @@ private RR(target: BinaryTreeNode<T>): BinaryTreeNode<T> {
 ```
 目标节点（不平衡的节点）`target` 的右子树的高度比左子树的高度高出了超过1个节点，因此需要向左旋转目标节点的右子树
 
-旋转时候，目标节点`target`的右节点（直接节点）`newRoot`，旋转到原本目标节点的位置上，目标节点则变成`newRoot` 的左节点
+旋转时候，目标节点`target`的右节点（直接节点）`newRoot`，旋转到原本目标节点的位置上，目标节点则变成`newRoot` 的左节点，而`newRoot`的左节点则成为`target`的右节点
 
 ```ts
 target.right = newRoot.left;
@@ -52,6 +59,17 @@ private LL(target: BinaryTreeNode<T>): BinaryTreeNode<T> {
   return newRoot;
 }
 ```
+
+目标节点`target`的左子树高度比右子树的高度高出了超过1个节点，需要向右旋转左子树。
+
+旋转时候，目标节点`target`的左节点`newRoot`旋转到原本目标节点`target`的位置上，成为树的新的根节点，`target`成为`newRoot`的右节点，`newRoot`的右节点成为`target`的左节点
+```ts
+target.left = newRoot.right;
+newRoot.right = target;
+```
+
+最后返回旋转平衡后的新的根节点`newRoot`，用来接到原本`target`的位置上
+
 ### 向右双旋(LR)
 
 ![](images/LR.png)
@@ -67,6 +85,8 @@ private LR(target: BinaryTreeNode<T>): BinaryTreeNode<T> {
   return e;
 }
 ```
+
+
 
 ### 向左双旋(RL)
 
