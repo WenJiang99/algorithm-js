@@ -1,5 +1,7 @@
 import Queue from "../Queue/Queue";
 
+import LinkedList from '../LinkedList/LinkedList'
+
 interface ICallback<T> {
   (v: T): any
 }
@@ -35,8 +37,6 @@ class Graph<T> {
   BFS(v: T, callback?: ICallback<T>) {
     const queue = new Queue<T>();
     const traverseMap = new Map<T, ITraverseType>();
-    const distances = new Map<T, number>();
-    const precursors = new Map<T, T>();
     queue.enqueue(v);
     while (!queue.empty()) {
       const entry = queue.dequeue();
@@ -51,6 +51,28 @@ class Graph<T> {
       traverseMap.set(entry, ITraverseType.TRAVERSED)
       callback && callback(entry);
     }
+  }
+
+  DFS(callback?: ICallback<T>) {
+    const traverseMap = new Map<T, ITraverseType>();
+    for (let i = 0; i < this.verticeList.length; i++) {
+      if (!traverseMap.get(this.verticeList[i])) {
+        this.visit(this.verticeList[i], traverseMap, callback)
+      }
+    }
+  }
+
+  private visit(vertice: T, traverseMap: Map<T, ITraverseType>, callback?: ICallback<T>) {
+    callback && callback(vertice);
+    traverseMap.set(vertice, ITraverseType.FOUND);
+    const adjacentPoints = this.linkMap.get(vertice);
+    for (let i = 0; i < adjacentPoints.length; i++) {
+      const item = adjacentPoints[i];
+      if (!traverseMap.get(item)) {
+        this.visit(item, traverseMap, callback)
+      }
+    }
+    traverseMap.set(vertice, ITraverseType.TRAVERSED);
   }
 
   toString() {

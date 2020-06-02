@@ -142,3 +142,60 @@ class GraphPath<T> extends Graph<T> {
 
 export default GraphPath;
 ```
+
+## DFS 深度优先遍历
+
+### 算法实现
+
+对于不指定入口的深度优先遍历是从第一个添加的顶点开始作为遍历入口`entry`，遍历第一个相邻顶点`u`，然后再继续遍历`u`的相邻顶点，
+一直往下直到相邻顶点没有可以继续向下遍历的顶点为止，再回退到上一个遍历的位置，遍历`entry`的其他相邻顶点。
+
+显然这个特征是应该用一个**递归**来实现不断深入往下递归，然后再从最深处往上回退（有点点类似于树的前序遍历）
+
+![](./images/dfs.png)
+
+```ts
+import Queue from "../Queue/Queue";
+
+import LinkedList from '../LinkedList/LinkedList'
+
+class Graph<T> {
+  protected verticeList: T[];
+  protected linkMap: Map<T, T[]>;
+  constructor() {
+    this.verticeList = [];
+    this.linkMap = new Map();
+  }
+
+  addVertice(v: T) {
+    this.verticeList.push(v);
+    this.linkMap.set(v, []);
+  }
+
+  DFS(callback?: ICallback<T>) {
+    const traverseMap = new Map<T, ITraverseType>();
+    for (let i = 0; i < this.verticeList.length; i++) {
+      if (!traverseMap.get(this.verticeList[i])) {
+        this.visit(this.verticeList[i], traverseMap, callback)
+      }
+    }
+  }
+
+  private visit(vertice: T, traverseMap: Map<T, ITraverseType>, callback?: ICallback<T>) {
+    callback && callback(vertice);
+    traverseMap.set(vertice, ITraverseType.FOUND);
+    const adjacentPoints = this.linkMap.get(vertice);
+    for (let i = 0; i < adjacentPoints.length; i++) {
+      const item = adjacentPoints[i];
+      if (!traverseMap.get(item)) {
+        this.visit(item, traverseMap, callback)
+      }
+    }
+    traverseMap.set(vertice, ITraverseType.TRAVERSED);
+  }
+}
+
+export default Graph;
+```
+
+从 `visit`方法的逻辑可以看出，一个顶点`v`的相邻顶点的遍历顺序，是按照在邻接表中的先后顺序进行遍历的，也就是按照**与`v`连接的先后顺序**进行遍历的。

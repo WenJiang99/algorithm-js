@@ -18,6 +18,8 @@ graph.addEdge('B', 'F');
 graph.addEdge('E', 'I');
 
 // graph.BFS('A', (v) => console.log(v))
-console.log(graph.BFS('A'))
+// console.log(graph.BFS('A'))
 
-console.log(graph.path('E', 'A'))
+// console.log(graph.path('E', 'A'))
+
+graph.DFS((v) => console.log(v))
