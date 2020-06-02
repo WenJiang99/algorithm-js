@@ -4,7 +4,7 @@ interface ICallback<T> {
   (v: T): any
 }
 
-enum ITraverseType {
+export enum ITraverseType {
   WAITTING,
   FOUND,
   TRAVERSED
@@ -16,8 +16,8 @@ type INodeExtra = {
 
 
 class Graph<T> {
-  private verticeList: T[];
-  private linkMap: Map<T, T[]>;
+  protected verticeList: T[];
+  protected linkMap: Map<T, T[]>;
   constructor() {
     this.verticeList = [];
     this.linkMap = new Map();
@@ -35,6 +35,8 @@ class Graph<T> {
   BFS(v: T, callback?: ICallback<T>) {
     const queue = new Queue<T>();
     const traverseMap = new Map<T, ITraverseType>();
+    const distances = new Map<T, number>();
+    const precursors = new Map<T, T>();
     queue.enqueue(v);
     while (!queue.empty()) {
       const entry = queue.dequeue();
@@ -50,6 +52,7 @@ class Graph<T> {
       callback && callback(entry);
     }
   }
+
   toString() {
     let str = ''
     for (let i = 0; i < this.verticeList.length; i++) {

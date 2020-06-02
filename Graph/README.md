@@ -18,9 +18,11 @@
 
 // 
 
-## 遍历
 
-### BFS（广度优先遍历）
+
+## BFS（广度优先遍历）
+
+### 遍历算法
 
 - 从给定的入口 `v` 开始，把入口 `v`压入到队列中。
 - 在队列中弹出一个顶点（遍历这个顶点），同时把这个顶点的所有邻接点压入到队列中
@@ -68,4 +70,75 @@ class Graph<T> {
 export default Graph;
 ```
 
+### 最短路径
 
+**基于边的数量的最短路径**
+
+在进行`BFS`遍历时候，记录下入口顶点到每一个点的距离。每次走一条边，则距离数加上一
+最短的距离就是**不重复的距离**，即每条需要走的边都只走一次。在`BFS`遍历中，当把顶点压入队列中的时候，先判断顶点时候已经在队列中了（通过遍历状态来判断），只把**没有入队，也没有遍历过的顶点**压入队中。
+
+遍历过程中还可以记录下每个顶点访问过程中的**先驱节点**，这样可以得到从一个顶点到另外一个顶点所经过的路径。
+
+路径中经过的点一次压入到一个 **栈**中，最后再依次出栈则可得到一个顶点到另外一个顶点的最短路径。
+
+```ts
+import Graph, { ITraverseType } from "./Graph";
+import Queue from "../Queue/Queue";
+import Stack from "../Stack/Stack";
+
+class GraphPath<T> extends Graph<T> {
+  /**
+   * 广度优先遍历查找路径
+   * @param v 广度优先遍历的入口顶点
+   */
+  BFS(v: T) {
+    const queue = new Queue<T>();
+    queue.enqueue(v);
+    const distances = new Map<T, number>();
+    const precursors = new Map<T, T>();
+    const traverseMap = new Map<T, ITraverseType>();
+    distances.set(v, 0)
+    precursors.set(v, null);
+    while (!queue.empty()) {
+      const entry = queue.dequeue();
+      this.linkMap.get(entry).forEach(item => {
+        if (!traverseMap.get(item)) {
+          queue.enqueue(item)
+          traverseMap.set(item, ITraverseType.FOUND)
+          precursors.set(item, entry);
+          distances.set(item, (distances.get(entry) || 0) + 1)
+        }
+      })
+      traverseMap.set(entry, ITraverseType.TRAVERSED);
+    }
+    return {
+      distances,
+      precursors
+    }
+  }
+
+  /**
+   * 查找从一个顶点到另外一个顶点的最短路径
+   * @param src 起点
+   * @param dest 终点
+   */
+  path(src: T, dest: T) {
+    const { distances, precursors } = this.BFS(src);
+    const stack = new Stack<T>();
+    let v = dest;
+    while (v !== src) {
+      stack.push(v)
+      v = precursors.get(v)
+    }
+    stack.push(v)
+    let str = ''
+    str += stack.pop();
+    while (!stack.isEmpty()) {
+      str += (' -> ' + stack.pop())
+    }
+    return str;
+  }
+}
+
+export default GraphPath;
+```
