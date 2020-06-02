@@ -1,9 +1,9 @@
-const RadixSorter = require('./RadixSorter')
+const RadixSorter = require('./RadixSorter.js')
 
 const data = new Array(10).fill(0).map(_ => Math.floor(Math.random() * 100));
 console.log(new RadixSorter(data).render())
 
-const PriorityQueue = require('./PriorityQueue')
+const PriorityQueue = require('../PriorityQueue')
 
 const queue = new PriorityQueue()
 queue.enqueue('Davis', 8)

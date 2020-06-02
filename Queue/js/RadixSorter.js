@@ -1,4 +1,4 @@
-const Queue = require('./Queue')
+const Queue = require('../Queue.js')
 module.exports = class RadixSorter {
     _data;
     _queues;
