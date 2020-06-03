@@ -54,6 +54,63 @@ class GraphPath<T> extends Graph<T> {
     }
     return str;
   }
+
+  /**
+   * DFS遍历，同时记录下从入口点`v`开始到每一个点`u`的发现的时间、完成遍历的时间和前驱节点
+   */
+  DFS() {
+    const traverseMap = new Map<T, ITraverseType>();
+    const discoverTime = new Map<T, number>();
+    const finishTime = new Map<T, number>();
+    const precursors = new Map<T, T>();
+    let time = 0;
+    for (let i = 0; i < this.verticeList.length; i++) {
+      const v = this.verticeList[i];
+      if (!traverseMap.get(v)) {
+        // 记录下每个入口遍历完成的时间，算入到其他入口发现的时间中
+        time = this.visit({ v, time, traverseMap, precursors, discoverTime, finishTime })
+      }
+    }
+    return {
+      discoverTime,
+      finishTime,
+      precursors
+    }
+  }
+
+  /**
+   * DFS递归遍历
+   * @param param0 
+   */
+  visit(
+    {
+      v,
+      traverseMap,
+      discoverTime,
+      finishTime,
+      time,
+      precursors
+    }: {
+      v: T,
+      traverseMap: Map<T, ITraverseType>,
+      discoverTime: Map<T, number>,
+      finishTime: Map<T, number>,
+      time: number,
+      precursors: Map<T, T>
+    }
+  ) {
+    traverseMap.set(v, ITraverseType.FOUND);
+    discoverTime.set(v, ++time);
+    this.linkMap.get(v).forEach(item => {
+      if (!traverseMap.get(item)) {
+        precursors.set(item, v);
+        // 记录下遍历入口 `v`的每一个邻接点遍历消耗的时间，这个时间需要算到顶点`v`的遍历时间中
+        time = this.visit({ v: item, traverseMap, discoverTime, finishTime, time, precursors })
+      }
+    })
+    finishTime.set(v, ++time)
+    return time;
+  }
 }
 
 export default GraphPath;

@@ -199,3 +199,102 @@ export default Graph;
 ```
 
 从 `visit`方法的逻辑可以看出，一个顶点`v`的相邻顶点的遍历顺序，是按照在邻接表中的先后顺序进行遍历的，也就是按照**与`v`连接的先后顺序**进行遍历的。
+
+### 遍历时间
+
+在`DFS`遍历时同时记录下从入口 `entry`开始，到每个顶点的发现的时间、完成遍历的时间和节点的前驱节点。
+
+需要一个变量`time`来记录遍历的时间，在最开始遍历前置为0，然后传入到递归函数中，每次经过一条边，则对应的时间加一。
+
+```ts
+class GraphPath<T> extends Graph<T> {
+
+  /**
+   * DFS遍历，同时记录下从入口点`v`开始到每一个点`u`的发现的时间、完成遍历的时间和前驱节点
+   */
+  DFS() {
+    const traverseMap = new Map<T, ITraverseType>();
+    const discoverTime = new Map<T, number>();
+    const finishTime = new Map<T, number>();
+    const precursors = new Map<T, T>();
+    let time = 0;
+    for (let i = 0; i < this.verticeList.length; i++) {
+      const v = this.verticeList[i];
+      if (!traverseMap.get(v)) {
+        // 记录下每个入口遍历完成的时间，算入到其他入口发现的时间中
+        time = this.visit({ v, time, traverseMap, precursors, discoverTime, finishTime })
+      }
+    }
+    return {
+      discoverTime,
+      finishTime,
+      precursors
+    }
+  }
+
+  /**
+   * DFS递归遍历
+   * @param param0 
+   */
+  visit(
+    {
+      v,
+      traverseMap,
+      discoverTime,
+      finishTime,
+      time,
+      precursors
+    }: {
+      v: T,
+      traverseMap: Map<T, ITraverseType>,
+      discoverTime: Map<T, number>,
+      finishTime: Map<T, number>,
+      time: number,
+      precursors: Map<T, T>
+    }
+  ) {
+    traverseMap.set(v, ITraverseType.FOUND);
+    discoverTime.set(v, ++time);
+    this.linkMap.get(v).forEach(item => {
+      if (!traverseMap.get(item)) {
+        precursors.set(item, v);
+        // 记录下遍历入口 `v`的每一个邻接点遍历消耗的时间，这个时间需要算到顶点`v`的遍历时间中
+        time = this.visit({ v: item, traverseMap, discoverTime, finishTime, time, precursors })
+      }
+    })
+    finishTime.set(v, ++time)
+    return time;
+  }
+}
+
+```
+
+![](./images/dfs-time.png)
+
+应该要注意到，递归函数要把 `time`变量作为返回值，用来修改递归入口处的`time`，这样才能某个顶点完成遍历的时间。
+如下代码所示：
+```ts
+    this.linkMap.get(v).forEach(item => {
+      if (!traverseMap.get(item)) {
+        precursors.set(item, v);
+        // 记录下遍历入口 `v`的每一个邻接点遍历消耗的时间，这个时间需要算到顶点`v`的遍历时间中
+        time = this.visit({ v: item, traverseMap, discoverTime, finishTime, time, precursors })
+      }
+    })
+    finishTime.set(v, ++time)
+    return time;
+```
+
+同时还要记录每一个入口遍历时间，算入到其他入口被发现（等待）的时间中，所以在`DFS`中还需要把递归遍历了每个入口的时间记录下来，作为下一个入口遍历的 `time`，这样才能记录下相互之间不连通（没有连通路径）的点被发现、遍历完成的时间
+
+如下代码所示：
+
+```ts
+    for (let i = 0; i < this.verticeList.length; i++) {
+      const v = this.verticeList[i];
+      if (!traverseMap.get(v)) {
+        // 记录下每个入口遍历完成的时间，算入到其他入口发现的时间中
+        time = this.visit({ v, time, traverseMap, precursors, discoverTime, finishTime })
+      }
+    }
+```

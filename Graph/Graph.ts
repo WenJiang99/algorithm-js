@@ -57,19 +57,19 @@ class Graph<T> {
     const traverseMap = new Map<T, ITraverseType>();
     for (let i = 0; i < this.verticeList.length; i++) {
       if (!traverseMap.get(this.verticeList[i])) {
-        this.visit(this.verticeList[i], traverseMap, callback)
+        this.visitByDFS(this.verticeList[i], traverseMap, callback)
       }
     }
   }
 
-  private visit(vertice: T, traverseMap: Map<T, ITraverseType>, callback?: ICallback<T>) {
+  private visitByDFS(vertice: T, traverseMap: Map<T, ITraverseType>, callback?: ICallback<T>) {
     callback && callback(vertice);
     traverseMap.set(vertice, ITraverseType.FOUND);
     const adjacentPoints = this.linkMap.get(vertice);
     for (let i = 0; i < adjacentPoints.length; i++) {
       const item = adjacentPoints[i];
       if (!traverseMap.get(item)) {
-        this.visit(item, traverseMap, callback)
+        this.visitByDFS(item, traverseMap, callback)
       }
     }
     traverseMap.set(vertice, ITraverseType.TRAVERSED);
