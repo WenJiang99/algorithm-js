@@ -298,3 +298,87 @@ class GraphPath<T> extends Graph<T> {
       }
     }
 ```
+
+## Dijkstra 算法
+
+`Dijkstra`算法是用来计算**单个源点src**到图中其他顶点的最短的距离。
+
+顶点之间的边带有一个用来表示两个点之间的距离的权值，图的表示通过一个权值矩阵来进行描述。权值为0表示两个点对应方向的路径是不可达的。
+
+```ts
+const data = [
+  [0, 2, 4, 0, 0, 0],
+  [0, 0, 2, 4, 2, 0],
+  [0, 0, 0, 0, 3, 0],
+  [0, 0, 0, 0, 0, 2],
+  [0, 0, 0, 3, 0, 2],
+  [0, 0, 0, 0, 0, 0]
+];
+```
+
+算法的核心就是,每次找到离源点`src`最近的、还没有遍历过的点，记下这个顶点`v`的索引 `min`，然后遍历这个顶点`v`的没有遍历过的邻接点 `u`，
+得到源点 `src`到`u`的距离就是源点 `src`到 `v`的距离加上 `v`到 `u`的距离，然后和之前已经从其他顶点路径计算得到的这个顶点 `u`距离进行比较，
+选取较短的一段距离。
+
+核心代码实现如下：
+```ts
+    for (let i = 0; i < verticeCount - 1; i++) {
+      const min = this.getMinDistanceIndex(distancesToSrc, visited);
+      visited[i] = true;
+      const adjacentDistancesOfMin = this.graphMatrix[min];
+      for (let v = 0; v < adjacentDistancesOfMin.length; v++) {
+        const hasPath = adjacentDistancesOfMin[v] !== 0;
+        const newPathDistance = distancesToSrc[min] + adjacentDistancesOfMin[v]
+        const isShorterPath = newPathDistance < distancesToSrc[v];
+        if (!visited[v] && hasPath && isShorterPath) {
+          distancesToSrc[v] = newPathDistance;
+        }
+      }
+    }
+```
+
+从代码中可以看到，代码每次循环都会获取到一个**新的、还未遍历过（邻接点）的、到源点距离最短**的点`v`，然后就去计算源点到这个点`v`的**还没有访问过的**
+邻接点的距离，与已经计算得到过的距离进行比较，就得到较短的距离。
+
+### 完整代码
+
+```ts
+class Digraph<T> {
+  protected graphMatrix: number[][];
+  constructor(matrix: number[][]) {
+    this.graphMatrix = matrix;
+  }
+  Dijkstra(src: number) {
+    const distancesToSrc = this.graphMatrix.map(_ => Infinity);
+    const visited = this.graphMatrix.map(_ => false);
+    const verticeCount = this.graphMatrix.length;
+    distancesToSrc[src] = 0;
+    for (let i = 0; i < verticeCount - 1; i++) {
+      const min = this.getMinDistanceIndex(distancesToSrc, visited);
+      visited[i] = true;
+      const adjacentDistancesOfMin = this.graphMatrix[min];
+      for (let v = 0; v < adjacentDistancesOfMin.length; v++) {
+        const hasPath = adjacentDistancesOfMin[v] !== 0;
+        const newPathDistance = distancesToSrc[min] + adjacentDistancesOfMin[v]
+        const isShorterPath = newPathDistance < distancesToSrc[v];
+        if (!visited[v] && hasPath && isShorterPath) {
+          distancesToSrc[v] = newPathDistance;
+        }
+      }
+    }
+    return distancesToSrc;
+  }
+
+  getMinDistanceIndex(distances: number[], visited: boolean[]) {
+    let minDistance = Infinity, minDistanceIndex = -1;
+    for (let i = 0; i < distances.length; i++) {
+      if (!visited[i] && distances[i] <= minDistance) {
+        minDistance = distances[i];
+        minDistanceIndex = i;
+      }
+    }
+    return minDistanceIndex;
+  }
+}
+
+```
