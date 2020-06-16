@@ -1,8 +1,10 @@
 class Digraph<T> {
   protected graphMatrix: number[][];
+  protected readonly NOT_ACCESSABLE: number = -1;
   constructor(matrix: number[][]) {
     this.graphMatrix = matrix;
   }
+
   Dijkstra(src: number) {
     const distancesToSrc = this.graphMatrix.map(_ => Infinity);
     const visited = this.graphMatrix.map(_ => false);
@@ -34,6 +36,33 @@ class Digraph<T> {
     }
     return minDistanceIndex;
   }
+
+  FloydWarshall() {
+    const len = this.graphMatrix.length;
+    const distance = [];
+    for (let i = 0; i < len; i++) {
+      distance[i] = []
+      for (let j = 0; j < len; j++)distance[i][j] = this.graphMatrix[i][j] === 0 ? this.NOT_ACCESSABLE : this.graphMatrix[i][j];
+    }
+    // 最外层的循环遍历的是节点
+    for (let k = 0; k < len; k++) {
+      // 里面两层循环遍历的是 distance 数组
+      for (let i = 0; i < len; i++) {
+        for (let j = 0; j < len; j++) {
+          if (distance[i][k] !== this.NOT_ACCESSABLE && distance[k][j] !== this.NOT_ACCESSABLE) {
+            if (
+              distance[i][k] + distance[k][j] < distance[i][j] ||
+              distance[i][j] === this.NOT_ACCESSABLE
+            ) {
+              distance[i][j] = distance[i][k] + distance[k][j]
+            }
+          }
+
+        }
+      }
+    }
+    return distance;
+  }
 }
 
 const data = [
@@ -45,3 +74,4 @@ const data = [
   [0, 0, 0, 0, 0, 0]
 ];
 console.log(new Digraph(data).Dijkstra(0))
+console.log(new Digraph(data).FloydWarshall())

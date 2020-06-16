@@ -305,6 +305,8 @@ class GraphPath<T> extends Graph<T> {
 
 顶点之间的边带有一个用来表示两个点之间的距离的权值，图的表示通过一个权值矩阵来进行描述。权值为0表示两个点对应方向的路径是不可达的。
 
+![](./images/weight-digraph.png)
+
 ```ts
 const data = [
   [0, 2, 4, 0, 0, 0],
@@ -378,6 +380,51 @@ class Digraph<T> {
       }
     }
     return minDistanceIndex;
+  }
+}
+
+```
+
+## Floyd-Warshall算法
+
+*Floyd-Warshall* 算法用于查找每个源点 `v` 到其他所有节点的最短路径（距离），得到的结果应该是一个 n*n 二维数据,`n` 是节点的个数
+
+数据的第 `i` 行存储的是第`i`个源点到其他所有节点的最短路径。
+
+第`i`行第`j`列的数值表示的就是图中第 `i` 个源点到 第 `j`个源点的最短路径
+
+算法的核心就是对源点进行逐一遍历，每个源点 `v` ，在遍历时候，都再去逐一看 `distance` 数组里面，之前已经计算到的第 `i` 个源点到第 `j`个源点的最短距离，与源点 `i` 到当前源点 `v` 的距离加上 `v`到 `j` 的距离之和相比，哪一条路径更短。
+
+
+因此，每个源点都需要对存储距离的二维数组 `distance`进行一次遍历，因此会有三层的`for`循环。
+
+核心思想就是看一下`distance`中已经得到的第`i`个节点到第`j`个节点的路径，如果改成先从`i`到 `v`，再从`v`到`j` 以后，新的路径会不会更短一些，如果更短就这新路径作为`i`到`j`的最短路径
+
+```ts
+class Digraph<T> {
+  protected graphMatrix: number[][];
+  constructor(matrix: number[][]) {
+    this.graphMatrix = matrix;
+  }
+  FloydWarshall() {
+    const len = this.graphMatrix.length;
+    const distance = [];
+    for (let i = 0; i < len; i++) {
+      distance[i] = []
+      for (let j = 0; j < len; j++)distance[i][j] = this.graphMatrix[i][j];
+    }
+    // 最外层的循环遍历的是节点
+    for (let k = 0; k < len; k++) { 
+      // 里面两层循环遍历的是 distance 数组
+      for (let i = 0; i < len; i++) {
+        for (let j = 0; j < len; j++) {
+          if (distance[i][k] + distance[k][j] < distance[i][j]) {
+            distance[i][j] = distance[i][k] + distance[k][j]
+          }
+        }
+      }
+    }
+
   }
 }
 
