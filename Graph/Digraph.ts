@@ -40,9 +40,23 @@ class Digraph<T> {
   FloydWarshall() {
     const len = this.graphMatrix.length;
     const distance = [];
+    const pathMatrix = []
     for (let i = 0; i < len; i++) {
       distance[i] = []
-      for (let j = 0; j < len; j++)distance[i][j] = this.graphMatrix[i][j] === 0 ? this.NOT_ACCESSABLE : this.graphMatrix[i][j];
+      pathMatrix[i] = []
+      for (let j = 0; j < len; j++) {
+        const path = []
+        if (i === j) {
+          distance[i][j] = 0;
+        } else if (this.graphMatrix[i][j] === 0) {
+          distance[i][j] = this.NOT_ACCESSABLE;
+        } else {
+          distance[i][j] = this.graphMatrix[i][j];
+          path.push(i)
+          path.push(j)
+        }
+        pathMatrix[i][j] = path;
+      }
     }
     // 最外层的循环遍历的是节点
     for (let k = 0; k < len; k++) {
@@ -55,13 +69,26 @@ class Digraph<T> {
               distance[i][j] === this.NOT_ACCESSABLE
             ) {
               distance[i][j] = distance[i][k] + distance[k][j]
+              pathMatrix[i][j] = this.joinPath(pathMatrix[i][k], pathMatrix[k][j])
             }
           }
 
         }
       }
     }
-    return distance;
+    return {
+      distance,
+      path: pathMatrix.map(verticePath => verticePath.map(pointList => this.pointsToPathStr(pointList)))
+    };
+  }
+  joinPath(...pathList) {
+    return pathList.reduce((totalPath, current) => [...totalPath, ...current], [])
+  }
+
+  pointsToPathStr(points: number[]) {
+    if (!points.length) return '';
+    points = Array.from(new Set(points)) // 数组去重
+    return points.reduce((str, point) => str ? `${str} -> ${point}` : `${point}`, '')
   }
 }
 
@@ -74,4 +101,4 @@ const data = [
   [0, 0, 0, 0, 0, 0]
 ];
 console.log(new Digraph(data).Dijkstra(0))
-console.log(new Digraph(data).FloydWarshall())
+console.log(new Digraph(data).FloydWarshall().path)
