@@ -429,3 +429,94 @@ class Digraph<T> {
 }
 
 ```
+
+## MST 最小生成树
+
+### Prim算法
+
+*Prim*算法求一个**加权无向连通图**的最小生成树，它能找出一个边的子集，使得
+其构成的树包含图中所有顶点，且边的权值之和最小。
+
+#### 算法核心
+通过`parent`数组来存储最小生成树中每个节点的父节点，`weight`数组存储某个节点`v`，从`v`的父节点到`v`的边的权值。`visited`用于存储每个节点是否已经遍历过（邻接点）
+
+每次找出还没遍历的、从父节点到这个节点的权重值最小的一个节点`v`，遍历这个节点的所有邻接点`u`，比较一下`v`到`u`的边的权值，与已经存储的从其他顶点到`u`的边的权值的大小，取权值小的作为到达`u`的最短权值，而对应的顶点就作为最小生成树中`u`的父节点。
+
+#### 图的结构
+对于一个含有*n*个节点的无向加权连通图，通过一个`n*n`的权值矩阵*M*来表是这个图，矩阵中的第i行第j列的元素*w*表示的就是第*i*个顶点到第*j*个顶点的边的权值，权值为0表示两个顶点之间没有边连接。
+
+![](./images/MST.png)
+
+```ts
+const weight = [
+  [0, 2, 4, 0, 0, 0],
+  [2, 0, 2, 4, 2, 0],
+  [4, 2, 0, 0, 3, 0],
+  [0, 4, 0, 0, 3, 2],
+  [0, 2, 3, 3, 0, 2],
+  [0, 0, 0, 2, 2, 0]];
+```
+#### 算法返回值
+算法执行完的返回值是一个包括了一个`parent`属性和一个`weight`属性的对象。
+`parent`属性是一个有`n`个元素的数组，表示每个节点对应的父节点的编号
+`weight`属性是有`n`个元素的数组，表示每个节点与其父节点之间的边的权值
+
+#### 完整算法
+
+```ts
+class WeightGraph<T> {
+  protected graph: number[][];
+  protected readonly NO_PARENT: number = -1;
+  constructor(weight = []) {
+    this.graph = weight;
+  }
+
+  /**
+   * 求解无向加权图的最小生成树的Prim算法
+   */
+  Prim() {
+    // 存储最小生成树中每个节点的父节点
+    const parent: number[] = [];
+    // 存储每个节点从其父节点到这个节点的边的权重
+    const weight: number[] = [];
+    const visited: boolean[] = [];
+    const length = this.graph.length;
+    for (let i = 0; i < length; i++) {
+      weight[i] = i === 0 ? 0 : Infinity;
+      parent[i] = i === 0 ? this.NO_PARENT : null;
+      visited[i] = false;
+    }
+    for (let i = 0; i < length; i++) {
+      // 还未遍历过的邻接点的、到其父节点的边的权重最小的顶点
+      const minWeightVertice = this.getMinWeightVertice(weight, visited)
+      visited[minWeightVertice] = true;
+      const adjacentWeightList = this.graph[minWeightVertice];
+      for (let i = 0; i < adjacentWeightList.length; i++) {
+        if (
+          !visited[i] &&
+          adjacentWeightList[i] !== 0 &&
+          adjacentWeightList[i] < weight[i]
+        ) {
+          parent[i] = minWeightVertice;
+          weight[i] = adjacentWeightList[i];
+        }
+      }
+    }
+    return {
+      parent,
+      weight,
+    }
+  }
+
+  getMinWeightVertice(weight: number[], visited: boolean[]) {
+    let minWeight = Infinity, minWeightIndex = -1;
+    for (let i = 0; i < weight.length; i++) {
+      if (!visited[i] && weight[i] <= minWeight) {
+        minWeight = weight[i];
+        minWeightIndex = i;
+      }
+    }
+    return minWeightIndex;
+  }
+}
+```
