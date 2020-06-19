@@ -52,6 +52,54 @@ class WeightGraph<T> {
     }
     return minWeightIndex;
   }
+
+  /**
+   * 求解加权无向连通图的最小生成树的贪心算法
+   */
+  Kruskal() {
+    let edgeCount = 0;
+    // 最小生成树中每个点的邻接点列表
+    const adjacentList: number[][] = []
+    const weight: number[][] = [];
+    const length = this.graph.length;
+    // deep clone
+    for (let i = 0; i < length; i++) {
+      weight[i] = [];
+      adjacentList[i] = []
+      for (let j = 0; j < length; j++) {
+        weight[i][j] = this.graph[i][j];
+      }
+    }
+
+    // n个点最终形成 n-1 条边
+    while (edgeCount < length - 1) {
+      let edgeStart, edgeEnd;
+      for (let i = 0, min = Infinity; i < length; i++) {
+        for (let j = 0; j < length; j++) {
+          if (weight[i][j] < min && weight[i][j] !== 0) {
+            min = weight[i][j];
+            edgeStart = i;
+            edgeEnd = j;
+          }
+        }
+      }
+      if (this.connect(edgeStart, edgeEnd, adjacentList)) {
+        edgeCount++;
+      }
+      // 已经找出的最小权值的边的两个顶点不需要再找
+      weight[edgeStart][edgeEnd] = weight[edgeEnd][edgeStart] = Infinity;
+    }
+    return adjacentList;
+  }
+
+  connect(start: number, end: number, adjacentList: number[][]) {
+    if (start !== end) {
+      adjacentList[start].push(end)
+      adjacentList[end].push(start)
+      return true;
+    }
+    return false;
+  }
 }
 
 const weight = [
@@ -60,6 +108,8 @@ const weight = [
   [4, 2, 0, 0, 3, 0],
   [0, 4, 0, 0, 3, 2],
   [0, 2, 3, 3, 0, 2],
-  [0, 0, 0, 2, 2, 0]];
+  [0, 0, 0, 2, 2, 0]
+];
 
-console.log(new WeightGraph(weight).Prim())
+console.table(new WeightGraph(weight).Kruskal())
+// console.log(new WeightGraph(weight).Prim())

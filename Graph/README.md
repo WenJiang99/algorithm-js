@@ -520,3 +520,96 @@ class WeightGraph<T> {
   }
 }
 ```
+### Kruskal算法
+
+#### 核心思想
+假设连通网G=（V，E），令最小生成树的初始状态为只有n个顶点而无边的非连通图T=（V，{}）
+图中每个顶点自成一个连通分量。在E中选择代价最小的边，若该边依附的顶点分别在T中不同的连通分量上，则将此边加入到T中；否则，舍去此边而选择下一条代价最小的边。
+依此类推，直至T中所有顶点构成一个连通分量为止。
+
+![](./images/kruskal.png)
+
+#### 图结构
+和`Prim`算法一样，无向加权连通图通过一个*权值矩阵* 来表示图的结构
+对于一个含有*n*个节点的无向加权连通图，通过一个`n*n`的权值矩阵*M*来表是这个图，矩阵中的第i行第j列的元素*w*表示的就是第*i*个顶点到第*j*个顶点的边的权值，权值为0表示两个顶点之间没有边连接。
+
+![](./images/MST.png)
+
+```ts
+const weight = [
+  [0, 2, 4, 0, 0, 0],
+  [2, 0, 2, 4, 2, 0],
+  [4, 2, 0, 0, 3, 0],
+  [0, 4, 0, 0, 3, 2],
+  [0, 2, 3, 3, 0, 2],
+  [0, 0, 0, 2, 2, 0]];
+```
+
+#### 完整代码
+
+```ts
+class WeightGraph<T> {
+  protected graph: number[][];
+  protected readonly NO_PARENT: number = -1;
+  constructor(weight = []) {
+    this.graph = weight;
+  }
+
+  /**
+   * 求解加权无向连通图的最小生成树的贪心算法
+   */
+  Kruskal() {
+    let edgeCount = 0;
+    // 最小生成树中每个点的邻接点列表
+    const adjacentList: number[][] = []
+    const weight: number[][] = [];
+    const length = this.graph.length;
+    // deep clone
+    for (let i = 0; i < length; i++) {
+      weight[i] = [];
+      adjacentList[i] = []
+      for (let j = 0; j < length; j++) {
+        weight[i][j] = this.graph[i][j];
+      }
+    }
+
+    // n个点最终形成 n-1 条边
+    while (edgeCount < length - 1) {
+      let edgeStart, edgeEnd;
+      for (let i = 0, min = Infinity; i < length; i++) {
+        for (let j = 0; j < length; j++) {
+          if (weight[i][j] < min && weight[i][j] !== 0) {
+            min = weight[i][j];
+            edgeStart = i;
+            edgeEnd = j;
+          }
+        }
+      }
+      if (this.connect(edgeStart, edgeEnd, adjacentList)) {
+        edgeCount++;
+      }
+      // 已经找出的最小权值的边的两个顶点不需要再找
+      weight[edgeStart][edgeEnd] = weight[edgeEnd][edgeStart] = Infinity;
+    }
+    return adjacentList;
+  }
+
+  connect(start: number, end: number, adjacentList: number[][]) {
+    if (start !== end) {
+      adjacentList[start].push(end)
+      adjacentList[end].push(start)
+      return true;
+    }
+    return false;
+  }
+}
+```
+
+代码中通过`adjacentList`二维数组来存储最后得到的最小生成树中的每一个顶点的所有邻接点
+`weight`是对用于表示图结构的权值矩阵的一个深拷贝，每次将找出的最短边的两个顶点之间的边的权值置为`Infinity`，避免后面又重复找到这条边。
+
+`n`个顶点的图，最终的最小生成树应该是包含了有`n-1`条边的，通过变量`edgeCount`来存储已经得到的最小生成树的边的数量，当`edgeCount`数量达到了`n-1`，则最小生成树已经构建完成。
+
+对于上面的图，执行算法，大概过程如图
+
+![](./images/kruskal-step.png)
