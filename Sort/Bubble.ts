@@ -2,6 +2,7 @@ import AbstractSort from "./AbstractSort";
 import BaseSort from "./BaseSort";
 import { mockArray } from "./utils/mock";
 import { deepClone } from "./utils/copy";
+import { getValue } from "./utils/key";
 
 class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
   protected data: T[]
@@ -9,15 +10,25 @@ class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
     super();
     this.data = data;
   }
-  sort(ascend: boolean = false): T[] {
+  sort(
+    {
+      key,
+      ascend = false
+    }: {
+      ascend: boolean,
+      key?: string
+    }
+  ): T[] {
     const data = deepClone(this.data);
-    return ascend ? this.ascendingSort(data) : this.descendingSort(data)
+    return ascend ? this.ascendingSort(data, key) : this.descendingSort(data, key)
   }
 
-  descendingSort(data: T[]): T[] {
+  descendingSort(data: T[], key?: string): T[] {
     for (let i = 0; i < data.length; i++) {
       for (let j = 0; j < data.length - i - 1; j++) {
-        if (data[j] < data[j + 1]) {
+        const v1 = getValue(data[j], key)
+        const v2 = getValue(data[j + 1], key)
+        if (v1 < v2) {
           [data[j + 1], data[j]] = [data[j], data[j + 1]]
         }
       }
@@ -25,10 +36,12 @@ class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
     return data
   }
 
-  ascendingSort(data: T[]): T[] {
+  ascendingSort(data: T[], key?: string): T[] {
     for (let i = 0; i < data.length; i++) {
       for (let j = 0; j < data.length - i - 1; j++) {
-        if (data[j] > data[j + 1]) {
+        const v1 = getValue(data[j], key)
+        const v2 = getValue(data[j + 1], key)
+        if (v1 > v2) {
           [data[j + 1], data[j]] = [data[j], data[j + 1]]
         }
       }
@@ -38,7 +51,8 @@ class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
 }
 
 const log = console.log;
-const data = mockArray({ length: 10 });
-const bubble = new BubbleSort(data);
-log(`raw data: `,data)
-log(`sorted data: `,bubble.sort(false))
+const numberSample = mockArray({ length: 10 });
+const objSample = numberSample.map(num => ({ data: { value: num } }))
+const bubble = new BubbleSort(objSample);
+log(`raw data: `, objSample)
+log(`sorted data: `, bubble.sort({ ascend: false, key: 'data.value' }))
