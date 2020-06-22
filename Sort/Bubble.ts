@@ -3,6 +3,7 @@ import BaseSort from "./BaseSort";
 import { mockArray } from "./utils/mock";
 import { deepClone } from "./utils/copy";
 import { getValue } from "./utils/key";
+import { test } from "./utils/validate";
 
 class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
   protected data: T[]
@@ -50,9 +51,4 @@ class BubbleSort<T> extends BaseSort<T> implements AbstractSort<T> {
   }
 }
 
-const log = console.log;
-const numberSample = mockArray({ length: 10 });
-const objSample = numberSample.map(num => ({ data: { value: num } }))
-const bubble = new BubbleSort(objSample);
-log(`raw data: `, objSample)
-log(`sorted data: `, bubble.sort({ ascend: false, key: 'data.value' }))
+test(BubbleSort, true, false)
