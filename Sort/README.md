@@ -312,3 +312,121 @@ class MergeSort<T> extends BaseSort<T> implements AbstractSort<T> {
   }
 }
 ```
+
+## 快速排序
+
+### 算法核心
+
+快速排序算法核心与归并排序算法类似，都是分治策略。
+快速排序算法通过每次选定一个元素作为**主元（pivot)**参考，以升序排序为例，在主元的左侧，应该是放置的是比主元小的元素，在主元右侧放置比主元大的元素。因此通过两个指针，一个在主元左侧开头 `left`，一个在主元右侧结尾`right`，在主元左侧找到比主元大的元素`vLeft`和主元右侧找比主元小的元素`vRight`（就是不该在这一侧的元素都找出来），两边交换一下。
+当`left`指针大于了`right`指针，说明某一侧的元素已经全部遍历过，放置好了。也即完成了一次**划分**(partition)
+
+每次划分操作会返回左指针遍历后指向的位置`index`，然后以`index`为主界将数组拆成两半，对两半再分别进行划分的操作。
+
+```ts
+  quickSort(data: T[], left: number, right: number, params: ISortParam): T[] {
+    let index;
+    if (data.length > 1) {
+      index = this.partition(data, left, right, params)
+      if (index > left + 1) {
+        this.quickSort(data, left, index - 1, params)
+      }
+      if (index < right) {
+        this.quickSort(data, index, right, params)
+      }
+    }
+    return data
+  }
+```
+
+大概的步骤：
+1、挑选基准值：从数列中挑出一个元素，称为“基准”（pivot），
+2、分割：重新排序数列，所有比基准值小的元素摆放在基准前面，所有比基准值大的元素摆在基准后面（与基准值相等的数可以到任何一边）。在这个分割结束之后，对基准值的排序就已经完成，
+3、递归排序子序列：递归地将小于基准值元素的子序列和大于基准值元素的子序列排序。
+
+
+主元的选取：
+通常情况下，主元可以有多种方法进行选取，有选最后一个元素的，也有选中间位置元素的。 但是左和右的分界线，基本都是以数组中间位置索引为界限分开。
+
+如果选择的是最后一个元素作为主元，则数组中间位置的元素，在前面元素调整完以后，会与主元做一次比较，看主元和中间位置元素是否需要调整位置。如果中间位置就恰好是主元的话，则不需要比较了。
+
+![](./images/quick-end.png)
+
+### 代码实现
+
+```ts
+import AbstractSort, { ISortParam } from "./AbstractSort";
+import BaseSort from "./BaseSort";
+import { deepClone } from "./utils/copy";
+import { getValue } from "./utils/key";
+import { test } from "./utils/validate";
+
+class QuickSort<T> extends BaseSort<T> implements AbstractSort<T> {
+  protected data: T[]
+  constructor(data: T[]) {
+    super();
+    this.data = data;
+  }
+  sort(param: ISortParam): T[] {
+    const data = deepClone(this.data)
+    return this.quickSort(data, 0, data.length - 1, param)
+  }
+
+  quickSort(data: T[], left: number, right: number, params: ISortParam): T[] {
+    let index;
+    if (data.length > 1) {
+      index = this.partition(data, left, right, params)
+      if (index > left + 1) {
+        this.quickSort(data, left, index - 1, params)
+      }
+      if (index < right) {
+        this.quickSort(data, index, right, params)
+      }
+    }
+    return data
+  }
+
+  partition(data: T[], left: number, right: number, { key, ascend }: ISortParam): number {
+    const pivot = this.getPivot(data, left, right)
+    const pivotValue = getValue(pivot, key)
+    let i = left, j = right;
+    while (i <= j) {
+      if (ascend) {
+        while (getValue(data[i], key) < pivotValue) i++;
+        while (getValue(data[j], key) > pivotValue) j--;
+      } else {
+        while (getValue(data[i], key) > pivotValue) i++;
+        while (getValue(data[j], key) < pivotValue) j--;
+      }
+      if (i <= j) {
+        this.swap(data, i, j)
+        i++;
+        j--;
+      }
+    }
+    return i;
+  }
+
+  getPivot(data: T[], left: number, right: number): T {
+    const index = Math.floor((left + right) / 2)
+    return data[index]
+  }
+}
+
+```
+其中在`quickSort`函数内对`index`进行判断，`index > left +1`，因为在进过一次划分后，`index`所在的元素一定会比其左侧的元素值要大（升序为例）,不需要参与左侧的递归的划分了，只需要参与右侧的划分。
+```ts
+  quickSort(data: T[], left: number, right: number, params: ISortParam): T[] {
+    let index;
+    if (data.length > 1) {
+      index = this.partition(data, left, right, params)
+      if (index > left + 1) {
+        this.quickSort(data, left, index - 1, params)
+      }
+      if (index < right) {
+        this.quickSort(data, index, right, params)
+      }
+    }
+    return data
+  }
+```
