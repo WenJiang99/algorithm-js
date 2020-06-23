@@ -47,9 +47,6 @@ class SelectionSort<T> extends BaseSort<T> implements AbstractSort<T> {
     }
     return data;
   }
-  swap(source: T[], index1: number, index2: number) {
-    [source[index1], source[index2]] = [source[index2], source[index1]]
-  }
 }
 
-test(SelectionSort, false, false)
+test(SelectionSort, { ascend: false })

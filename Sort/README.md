@@ -149,5 +149,100 @@ class SelectionSort<T> extends BaseSort<T> implements AbstractSort<T> {
     [source[index1], source[index2]] = [source[index2], source[index1]]
   }
 }
+```
 
+## 插入排序
+
+### 算法核心
+插入排序算法的核心是，从数组第二个元素开始遍历（第一个认为是已经就是排过序的），每个元素的左边是前面已经排好序的序列，现在只需要把当前元素和前面的元素进行比较，找到当前元素应该放置的位置即可。
+
+如果是升序排序，则当前待排序的元素的左边就是一个前面已经排好的升序序列，因此当前元素只要去和前面的排好序的序列元素进行比较，只要符合`current > prev`则意味着不再需要往前去比较了，这个位置就是当前元素的目标位置。
+
+如果是降序排序，则当前待排元素的左边就是一个已经排好序的降序序列，因此只需要满足`current < prev`，则不需要再往前去比较了，这个位置就是当前元素的目标位置。
+
+升序和降序分别需要考虑一下，当前元素就是最小、最大元素的情况。
+
+![](./images/insert.png)
+
+### 代码实现
+
+```ts
+import BaseSort from "./BaseSort";
+import AbstractSort, { ISortParam } from "./AbstractSort";
+import { deepClone } from "./utils/copy";
+import { getValue } from "./utils/key";
+import { test } from "./utils/validate";
+
+class InsertSort<T> extends BaseSort<T> implements AbstractSort<T> {
+  protected data: T[]
+  constructor(data: T[]) {
+    super();
+    this.data = data;
+  }
+  sort({ key, ascend }: ISortParam): T[] {
+    const data = deepClone(this.data)
+    return ascend ? this.ascendingSort(data, key) : this.descendingSort(data, key)
+  }
+  ascendingSort(data: T[], key?: string) {
+    let i = -1;
+    while (++i < data.length) {
+      let j = i;
+      const current = getValue(data[i], key)
+      while (--j >= 0) {
+        const prev = getValue(data[j], key)
+        if (current > prev) {
+          this.insert(data, j + 1, i)
+          break
+        }
+        // 当前元素就是最小的元素
+        if (j == 0) {
+          this.insert(data, 0, i)
+        }
+      }
+    }
+    return data;
+  }
+
+  descendingSort(data: T[], key?: string) {
+    let i = -1;
+    while (++i < data.length) {
+      let j = i;
+      const current = getValue(data[i], key)
+      while (--j >= 0) {
+        const prev = getValue(data[j], key)
+        if (current < prev) {
+          this.insert(data, j + 1, i)
+          break
+        }
+        // 当前元素就是最大的元素
+        if (j === 0) {
+          this.insert(data, 0, i)
+        }
+      }
+    }
+    return data;
+  }
+
+  insert(data: T[], targetIndex: number, currentIndex: number) {
+    let i = currentIndex;
+    const value = data[currentIndex];
+    while (--i >= targetIndex) {
+      data[i + 1] = data[i]
+    }
+    data[targetIndex] = value;
+  }
+}
+```
+
+插入排序，在已经排好序的序列中插入新的元素，需要涉及到元素的移位挪动，统一封装成一个`insert`方法
+
+```ts
+  insert(data: T[], targetIndex: number, currentIndex: number) {
+    let i = currentIndex;
+    const value = data[currentIndex];
+    while (--i >= targetIndex) {
+      data[i + 1] = data[i]
+    }
+    data[targetIndex] = value;
+  }
 ```
