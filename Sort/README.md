@@ -254,3 +254,61 @@ class InsertSort<T> extends BaseSort<T> implements AbstractSort<T> {
     data[targetIndex] = value;
   }
 ```
+
+## 归并排序
+
+### 算法核心
+归并排序的核心是**分治**，将待排序的数组切分成多个较小的数组，不断缩小每一个排序的小块的元素数量，直到每一个排序的分块都只有一个元素，然后再将小数组进行合并成一个大数组，得到一个合并后排序完成的数组。
+
+对于数组的切分，采用递归的方式，不断向下递归，对数组进行切分，直到数组只含有一个元素，不能再切分为止。然后再向上合并，两个小块合并成一个有序的大块，一直往上合并直到得到最后的完整的排好序后的数组。
+
+![](./images/merge.png)
+
+### 代码实现
+
+```ts
+import AbstractSort, { ISortParam } from "./AbstractSort";
+import BaseSort from "./BaseSort";
+import { deepClone } from "./utils/copy";
+import { getValue } from "./utils/key";
+import { test } from "./utils/validate";
+
+class MergeSort<T> extends BaseSort<T> implements AbstractSort<T> {
+  protected data: T[]
+  constructor(data: T[]) {
+    super();
+    this.data = data;
+  }
+  sort({ key, ascend }: ISortParam): T[] {
+    const data = deepClone(this.data);
+    return this.mergeSort(data, { key, ascend })
+  }
+
+  mergeSort(data: T[], params: ISortParam): T[] {
+    if (data.length === 1) return data;
+    const bound = Math.floor(data.length / 2)
+    const [left, right] = [data.slice(0, bound), data.slice(bound)]
+    return this.merge(this.mergeSort(left, params), this.mergeSort(right, params), params)
+  }
+
+  merge(left: T[], right: T[], { key, ascend }: ISortParam): T[] {
+    const result = []
+    let i = 0, j = 0;
+    while (i < left.length && j < right.length) {
+      const [vleft, vright] = [getValue(left[i], key), getValue(right[j], key)]
+      if (vleft > vright) {
+        ascend ? result.push(right[j++]) : result.push(left[i++])
+      } else {
+        ascend ? result.push(left[i++]) : result.push(right[j++])
+      }
+    }
+    while (i < left.length) {
+      result.push(left[i++])
+    }
+    while (j < left.length) {
+      result.push(right[j++])
+    }
+    return result;
+  }
+}
+```
