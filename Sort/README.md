@@ -305,7 +305,7 @@ class MergeSort<T> extends BaseSort<T> implements AbstractSort<T> {
     while (i < left.length) {
       result.push(left[i++])
     }
-    while (j < left.length) {
+    while (j < right.length) {
       result.push(right[j++])
     }
     return result;
