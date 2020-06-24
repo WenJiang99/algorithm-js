@@ -430,3 +430,81 @@ class QuickSort<T> extends BaseSort<T> implements AbstractSort<T> {
     return data
   }
 ```
+
+## 堆排序
+
+### 算法核心
+
+堆排序的核心是把数组当成一颗**二叉树**来进行管理。其中主要包括下列的一些规则：
+
+- 索引0是树的根节点
+- 除了根节点外，任意节点`i`的父节点是`floor((i-1)/2)`
+- 节点`i`的左子节点是`2*i+1`
+- 节点`i`的右子节点是`2*i+2`
+
+#### 大概步骤
+- 把待排序的数组修改成一个堆的形式，升序排序则改成一个最大堆，降序排序改成一个最小堆
+- 做一个遍历，对于升序遍历而言（最大堆），每次把堆顶元素放到堆的最后一个位置，完成该元素的排序，同时堆的大小减小一个，避免已经排好的元素继续参与排序。遍历直到堆中只有一个元素，完成排序。
+
+构造堆的大概过程示意：
+![](./images/heap-build.png)
+
+堆排序的大概过程示意：
+![](./images/heap-sort.png)
+
+### 代码实现
+
+```ts
+import AbstractSort, { ISortParam } from "./AbstractSort";
+import BaseSort from "./BaseSort";
+import { deepClone } from "./utils/copy";
+import { getValue } from "./utils/key";
+import { test } from "./utils/validate";
+
+class HeapSort<T> extends BaseSort<T> implements AbstractSort<T> {
+  protected data: T[]
+  constructor(data: T[]) {
+    super();
+    this.data = data;
+  }
+  sort({ key, ascend }: ISortParam): T[] {
+    const data = deepClone(this.data)
+    let heapSize = data.length;
+    this.buildHeap(data, { key })
+
+    while (heapSize > 1) {
+      heapSize--;
+      this.swap(data, 0, heapSize)
+      this.heapify(data, heapSize, 0, { key })
+    }
+    return ascend ? data : data.reverse();
+  }
+
+  buildHeap(data: T[], param: ISortParam) {
+    for (let i = Math.floor(data.length / 2) - 1; i >= 0; i--) {
+      this.heapify(data, data.length, i, param)
+    }
+  }
+
+  heapify(data: T[], heapSize: number, root: number, { key }: ISortParam) {
+    let largest = root;
+    const leftChild = 2 * root + 1;
+    const rightChild = 2 * root + 2;
+    const [vLeft, vRight] = [getValue(data[leftChild], key), getValue(data[rightChild], key)]
+    if (vLeft !== undefined && leftChild < heapSize && vLeft > getValue(data[largest], key)) {
+      largest = leftChild;
+    }
+    if (vRight !== undefined && rightChild < heapSize && vRight > getValue(data[largest], key)) {
+      largest = rightChild;
+    }
+    if (largest !== root) {
+      this.swap(data, largest, root)
+      // 根节点和子节点发生了交换的话，交换的子节点需要重新修正成一个堆
+      this.heapify(data, heapSize, largest, { key })
+    }
+  }
+
+}
+```
+
+这里升序与降序，统一先写成了升序排序的方案，如果是降序排序，先将数组倒转一下再返回即可。

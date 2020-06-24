@@ -39,17 +39,19 @@ export function test<T>(
     size = 10,
     min,
     max,
-    isInt
+    isInt,
+    data
   }: {
     ascend?: boolean
     size?: number,
     min?: number,
     max?: number,
-    isInt?: boolean
+    isInt?: boolean,
+    data?: number[]
   }
 ): any {
   const log = console.log;
-  const numberSample = mockArray({ length: size, min, max, isInt });
+  const numberSample = data || mockArray({ length: size, min, max, isInt });
   const objSample = deepClone(numberSample.map(num => ({ data: { value: num } })))
   const numberSorter = new Ctor(numberSample);
   const sortedNum = numberSorter.sort({ ascend });
