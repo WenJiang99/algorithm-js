@@ -92,5 +92,180 @@ class CoinChange {
 
 `!change.length` 是第一次循环会满足的条件
 
+## 背包问题（0-1版本）
+
+### 问题描述
+给定一个固定大小、能够携带重量为`W`的背包，以及一组有价值和重量的物品，找出一个最佳方案，使得装入到背包中的物品总重量不超过`W`且总价值最大。
+物品都是完整的物品，且同一个物品不能重复选择。
+
+### 解决思路
+假设物品数量有`n`个，背包容量为`C`。
+采用一个*n+1* 行 *C+1* 列的二维数组来存储问题的解决方案，矩阵的第一行和第一列都置为0。
+
+采用动态规划来解决这个问题，关键是要找到复杂问题下的子问题。
+我们从第一个物品开始进行分析，一直分析到最后一个物品。每个物品只有选择和不选择两种情况。
+假设在分析第*i*个物品时候，背包容量剩余为`W`，其中 ` 1<= W <= C`。则如果选择了第*i*个物品，背包容量就会减少为`W-weight`，同时，在前*i-1*个物品中选择物品的时候，对应的背包容量就是`W-weight`了。而如果不选择当前物品，则背包容量不会减少。
+
+对于背包容量为`W`,在前i个物品中选择出总重量不超过背包容量，且价值最大的最优的解决方案，记为`p(i,W)`，则选择了当前物品*i*的话，当前的解决方案就是`p(i,W) = p(i-1,W-weight) + value(i)`，而不选择当前物品，则解决方案就是`p(i,W) = p(i-1,W)`，也即就是物品都从前面*i-1*个中选择。
+
+只需要比较`p(i-1,W)`和`p(i-1,W-weight) + value(i)`两种方案，哪一种的价值更大，即可得到最优的解决方案。
+
+因此只需要做一下遍历，把每一组的(i,W) 组合对应的最优解决方案算一下
+
+```ts
+for (let i = 0; i <= goodsCount; i++) {
+  for (let weight = 0; weight <= capacity; weight++) {
+    // to do 
+  }
+}
+```
+
+### 循环实现
+
+循环方式实现，是通过填写一个二维表来记录每一组(i,W)下最优解决方案对应的最大价值和对应选择的物品。
+
+二维表的第*i*行，*w*列，表示的是在*前i个*物品中选择重量不超过*w*，能够取得的最大价值。
+
+
+```ts
+interface IGoodInfo {
+  weight: number,
+  value: number,
+}
+class Knapsack {
+  constructor() {
+  }
+
+  loop(goodsList: IGoodInfo[], capacity: number): any[] {
+    const goodsCount = goodsList.length;
+    const matrix = []
+    const selectedMatrix = []
+    for (let i = 0; i <= goodsCount; i++) {
+      matrix[i] = []
+      selectedMatrix[i] = []
+    }
+    for (let i = 0; i <= goodsCount; i++) {
+      for (let weight = 0; weight <= capacity; weight++) {
+        if (i === 0 || weight === 0) { 
+          matrix[i][weight] = 0;
+          selectedMatrix[i][weight] = [];
+        } else if (goodsList[i - 1].weight <= weight) {
+          const currentGoods = goodsList[i - 1]
+          const pickCurrent = matrix[i - 1][weight - currentGoods.weight] + currentGoods.value;
+          const notPickCurrent = matrix[i - 1][weight];
+          // 不选当前物品 与 选了当前物品 哪一种情况下的价值最大
+          if (pickCurrent > notPickCurrent) {
+            matrix[i][weight] = pickCurrent;
+            selectedMatrix[i][weight] = (selectedMatrix[i - 1][weight - currentGoods.weight] || []).concat([currentGoods])
+          } else {
+            matrix[i][weight] = notPickCurrent;
+            selectedMatrix[i][weight] = selectedMatrix[i - 1][weight] || []
+          }
+        } else {
+          matrix[i][weight] = matrix[i - 1][weight]
+          selectedMatrix[i][weight] = selectedMatrix[i - 1][weight] || []
+        }
+      }
+    }
+    return selectedMatrix[goodsCount][capacity];
+  }
+}
+```
+
+代码中主要分析过程在于后面的`for`循环：
+```ts
+    for (let i = 0; i <= goodsCount; i++) {
+      for (let weight = 0; weight <= capacity; weight++) {
+        if (i === 0 || weight === 0) { 
+          matrix[i][weight] = 0;
+          selectedMatrix[i][weight] = [];
+        } else if (goodsList[i - 1].weight <= weight) {
+          const currentGoods = goodsList[i - 1]
+          const pickCurrent = matrix[i - 1][weight - currentGoods.weight] + currentGoods.value;
+          const notPickCurrent = matrix[i - 1][weight];
+          // 不选当前物品 与 选了当前物品 哪一种情况下的价值最大
+          if (pickCurrent > notPickCurrent) {
+            matrix[i][weight] = pickCurrent;
+            selectedMatrix[i][weight] = (selectedMatrix[i - 1][weight - currentGoods.weight] || []).concat([currentGoods])
+          } else {
+            matrix[i][weight] = notPickCurrent;
+            selectedMatrix[i][weight] = selectedMatrix[i - 1][weight] || []
+          }
+        } else {
+          matrix[i][weight] = matrix[i - 1][weight]
+          selectedMatrix[i][weight] = selectedMatrix[i - 1][weight] || []
+        }
+      }
+    }
+```
+首先对于`i===0 || weight === 0`的位置，表示要么是没有物品可以选择（i===0)，要么背包没有容量（weight === 0)
+
+对于`currentGoods.weight <= weight`，表示的是当前物品的重量是小于等于背包剩余的容量的，物品是可以被选择的，因此去分析，选择当前物品和不选择当前物品两种情况下，那种方案的价值最大，作为最优方案：
+
+```ts
+const currentGoods = goodsList[i - 1]
+const pickCurrent = matrix[i - 1][weight - currentGoods.weight] + currentGoods.value;
+const notPickCurrent = matrix[i - 1][weight];
+// 不选当前物品 与 选了当前物品 哪一种情况下的价值最大
+if (pickCurrent > notPickCurrent) {
+  matrix[i][weight] = pickCurrent;
+  selectedMatrix[i][weight] = (selectedMatrix[i - 1][weight - currentGoods.weight] || []).concat([currentGoods])
+} else {
+  matrix[i][weight] = notPickCurrent;
+  selectedMatrix[i][weight] = selectedMatrix[i - 1][weight] || []
+}
+```
+对于当前物品重量超过了背包剩余容量的话，也是不能选择当前物品的，因此当前(i,W)的组合的最优方案就是不选择当前物品时候的最优方案，即`p(i,W) = p(i-1,W)`
+
+对于如下的例子，得到的二维表如图所示：
+
+![](./images/knapsack/question.png)
+
+![](./images/knapsack/matrix.png)
+
+
+二维表的意义：
+
+![](./images/knapsack/matrix-1.png)
+
+
+
+### 递归实现
+
+```ts
+interface IGoodInfo {
+  weight: number,
+  value: number,
+}
+class Knapsack {
+  constructor() {
+  }
+
+  recursive(goodsList: IGoodInfo[], capacity: number): IGoodInfo[] {
+    if (capacity <= 0) {
+      return []
+    }
+    const goodsCount = goodsList.length;
+    let target: IGoodInfo[] = []
+    let maxValue = 0;
+    for (let i = 0; i < goodsCount; i++) {
+      const goods = goodsList[i];
+      if (goods.weight <= capacity) {
+        const otherGoodsList = this.recursive(goodsList.slice(i + 1), capacity - goods.weight)
+        const value = otherGoodsList.reduce((total, current) => total + current.value, 0)
+        if (
+          ((value + goods.value) > maxValue || !maxValue)
+        ) {
+          maxValue = value + goods.value;
+          target = [goods].concat(otherGoodsList)
+        }
+      }
+    }
+    return target;
+  }
+}
+```
+
+
 ## 参考
 - [知乎-什么是动态规划（Dynamic Programming）？动态规划的意义是什么](https://www.zhihu.com/question/23995189)
