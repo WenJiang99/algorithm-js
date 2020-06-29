@@ -119,13 +119,10 @@ export default class AVL<T> extends BinarySearchTree<T> implements AbstractAVL<T
    * @param data 
    */
   insert(data: T): void {
-    console.log(`================== ${data} =======================`)
     const e = new BinaryTreeNode(data);
     if (!this.root) this.root = e;
     else this.insertToTree(this.root, e);
     this.root = this.balance(this.root, e);
-
-    console.log(`${data} ==> `, this.root)
   }
 
 

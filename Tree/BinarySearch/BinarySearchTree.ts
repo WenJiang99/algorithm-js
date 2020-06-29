@@ -94,6 +94,26 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
   }
 
   /**
+   * 中序遍历的非递归实现
+   * @param root 
+   * @param cb 
+   */
+  private inOrderTraverseByLoop(root: BinaryTreeNode<T>, cb?: TreeNodeCallBack<T>): void {
+    const stack: BinaryTreeNode<T>[] = []
+    let element: BinaryTreeNode<T> = root;
+    while (stack.length > 0 || (element !== null && element !== undefined)) {
+      if (element) {
+        stack.push(element)
+        element = element.left;
+      } else {
+        element = stack.pop()
+        cb && cb(element)
+        element = element.right;
+      }
+    }
+  }
+
+  /**
    * 前序遍历，父节点 --> 左节点 --> 右节点
    * @param element 
    * @param cb 
@@ -103,6 +123,22 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
       cb && cb(element);
       this.preOrderTraverseElement(element.left, cb);
       this.preOrderTraverseElement(element.right, cb);
+    }
+  }
+
+  /**
+   * 前序遍历的非递归实现
+   * @param element 
+   * @param cb 
+   */
+  private preOrderTraverseByLoop(element: BinaryTreeNode<T>, cb?: TreeNodeCallBack<T>): void {
+    const stack: BinaryTreeNode<T>[] = []
+    element && stack.push(element)
+    while (stack.length > 0) {
+      const current = stack.pop()
+      cb && cb(current)
+      current && current.right && stack.push(current.right)
+      current && current.left && stack.push(current.left)
     }
   }
 
@@ -117,6 +153,24 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
       this.postOrderTraverseElement(element.right, cb);
       cb && cb(element);
     }
+  }
+
+  /**
+   * 后序遍历非递归
+   * @param root 
+   * @param cb 
+   */
+  private postOrderTraverseByLoop(root: BinaryTreeNode<T>, cb?: TreeNodeCallBack<T>): void {
+    const stack: BinaryTreeNode<T>[] = []
+    const result: BinaryTreeNode<T>[] = []
+    let element: BinaryTreeNode<T> = root;
+    while (stack.length > 0 || (element !== null && element !== undefined)) {
+      result.unshift(element)
+      element && element.left && stack.push(element.left)
+      element && element.right && stack.push(element.right)
+      element = stack.pop()
+    }
+    result.forEach(item => cb && cb(item))
   }
 
   /**
@@ -287,8 +341,11 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * @param cb 遍历每个节点执行的回调函数
    */
   preOrderTraverse(cb?: TreeNodeCallBack<T>): void {
+    console.log(`[[==========preOrder==========]]`)
     cb = cb || (item => console.log(item && item.data));
     this.preOrderTraverseElement(this.root, cb);
+    console.log('===========loop=========')
+    this.preOrderTraverseByLoop(this.root, cb);
   }
 
   /**
@@ -296,8 +353,11 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * @param cb 遍历每个节点执行的回调函数
    */
   postOrderTraverse(cb?: TreeNodeCallBack<T>): void {
+    console.log(`[[==========postOrder==========]]`)
     cb = cb || (item => console.log(item && item.data));
     this.postOrderTraverseElement(this.root, cb);
+    console.log('===========loop=========')
+    this.postOrderTraverseByLoop(this.root, cb);
   }
 
   /**
@@ -305,8 +365,11 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
    * @param cb 遍历每个节点执行的回调函数
    */
   inOrderTraverse(cb?: TreeNodeCallBack<T>): void {
+    console.log(`[[==========inOrder==========]]`)
     cb = cb || (item => console.log(item && item.data));
     this.inOrderTraverseElement(this.root, cb);
+    console.log('===========loop=========')
+    this.inOrderTraverseByLoop(this.root, cb);
   }
 
   getRoot(): BinaryTreeNode<T> | null {

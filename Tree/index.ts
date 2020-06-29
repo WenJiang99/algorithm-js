@@ -23,3 +23,5 @@ tree.insert(6);
 
 // console.log(tree.getRoot())
 tree.inOrderTraverse()
+tree.preOrderTraverse()
+tree.postOrderTraverse()
