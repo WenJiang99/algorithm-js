@@ -5,6 +5,7 @@
 ### 前序遍历
 
 #### 描述
+
 前序遍历中，即遍历时，根节点在左孩子和右孩子前面被遍历。对于一个带有左节点和右节点的元素`element`，遍历的顺序是` element -> element.left -> element.right`
 
 ![](./images/preOrder.png)
@@ -145,6 +146,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
 ```
 
 #### 非递归实现
+
 中序遍历通过循环来实现非递归遍历，也是通过一个*栈* 来存放等待遍历的节点。
 中序遍历是先遍历左节点，再遍历根节点，最后遍历右节点。
 因此先判断节点是否存在，存在的时候则将节点压入栈中等待遍历，然后先去遍历节点的左子树。
@@ -179,6 +181,7 @@ export default class BinarySearchTree<T> implements AbstractSearchTree<T>{
 ### 后序遍历
 
 #### 描述
+
 后序遍历是根节点在左节点、右节点之后再遍历。`element.left -> element.right -> element`
 
 ![](./images/postOrder.png)
